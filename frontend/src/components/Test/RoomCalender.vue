@@ -19,10 +19,47 @@
               <v-btn color="secondary" class="mr-4" v-bind="attrs" v-on="on">Add event</v-btn>
             </template>
             <v-card>
-              <v-form>
+              <v-form ref="form" lazy-validation @submit.prevent="save">
                 <v-card-title> Add event </v-card-title>
                 <v-card-text>
                   <v-container>
+                    <v-row>
+                      <v-menu
+                        ref="menu3"
+                        v-model="menu3"
+                        :close-on-content-click="false"
+                        :close-on-click="false"
+                        :nudge-right="40"
+                        :return-value.sync="editedItem.date"
+                        transition="scale-transition"
+                        offset-y
+                      >
+                        <template #activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="editedItem.date"
+                            label="Date for reservation"
+                            prepend-icon="mdi-calendar"
+                            readonly
+                            required
+                            :rules="[() => !!editedItem.date || 'This field is required']"
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                        </template>
+                        <v-date-picker
+                          v-if="menu3"
+                          v-model="editedItem.date"
+                          :landscape="true"
+                          :reactive="true"
+                        >
+                          <v-spacer />
+                          <v-btn text color="success" @click="menu3 = false"> Cancel </v-btn>
+                          <v-btn text color="secondary" @click="$refs.menu3.save(editedItem.date)">
+                            OK
+                          </v-btn>
+                        </v-date-picker>
+                      </v-menu>
+                    </v-row>
                     <v-row>
                       <v-col cols="11" sm="5">
                         <v-menu
@@ -115,8 +152,43 @@
                         </v-menu>
                       </v-col>
                     </v-row>
+                    <v-row>
+                      <v-text-field
+                        id="name"
+                        ref="name_field"
+                        v-model="name"
+                        name="name"
+                        label="Name for reservation"
+                        required
+                        :rules="[() => !!editedItem.entry || 'This field is required']"
+                      ></v-text-field>
+                      <v-spacer></v-spacer>
+                      <v-text-field
+                        id="ist_id"
+                        ref="ist_id_field"
+                        v-model="ist_id"
+                        name="ist_number"
+                        label="Ist ID (ist1*)"
+                        required
+                        :rules="[() => !!editedItem.entry || 'This field is required']"
+                      ></v-text-field>
+                    </v-row>
+                    <v-row>
+                      <v-select
+                        v-model="roomDropdown"
+                        :items="items"
+                        label="Room"
+                        required
+                        :rules="[() => !!editedItem.entry || 'This field is required']"
+                      ></v-select>
+                    </v-row>
                   </v-container>
                 </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="primary" text @click="close"> Cancel </v-btn>
+                  <v-btn color="primary" text @click="save"> Save </v-btn>
+                </v-card-actions>
               </v-form>
             </v-card>
           </v-dialog>
@@ -194,11 +266,6 @@
               </p>
               <p>Description: {{ selectedEvent.details.description }}</p>
             </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="primary" text @click="close"> Cancel </v-btn>
-              <v-btn color="primary" text @click="save"> Save </v-btn>
-            </v-card-actions>
           </v-card>
         </v-menu>
       </v-sheet>
@@ -217,6 +284,12 @@ export default {
       week: 'Week',
       day: 'Day',
     },
+    menu: false,
+    menu2: false,
+    menu3: false,
+    date: false,
+    roomDropdown: '',
+    dialog: false,
     selectedEvent: {},
     selectedElement: null,
     selectedOpen: false,
@@ -225,8 +298,12 @@ export default {
     editedItem: {
       entry: '',
       exit: '',
+      date: '',
     },
     requested: [],
+    items: ['SDM', 'MOM', 'LTI'],
+    name: '',
+    ist_id: '',
   }),
   mounted() {
     this.$refs.calendar.checkChange();
@@ -334,6 +411,14 @@ export default {
       // Don't save if validation is unsuccessful
       if (!this.$refs.form.validate()) return;
       try {
+        console.log(this.ist_id);
+        console.log(this.name);
+        console.log(this.roomDropdown);
+        console.log(this.editedItem);
+
+        this.ist_id = '';
+        this.name = '';
+        this.roomDropdown = '';
         /*
         if (this.editedIndex > -1) {
           this.editedItem.entry = this.day + this.editedItem.entry + ':000Z';
