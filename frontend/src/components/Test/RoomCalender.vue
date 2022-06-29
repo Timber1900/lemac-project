@@ -57,11 +57,12 @@
           <v-card v-if="selectedElement" color="grey lighten-4" min-width="250px" flat>
             <v-toolbar :color="selectedEvent.color" dark>
               <v-toolbar-title v-if="selectedElement">{{
-                selectedEvent.details.user.name
+                selectedEvent.details.title
               }}</v-toolbar-title>
               <v-spacer></v-spacer>
             </v-toolbar>
             <v-card-text>
+              <p>Classroom: {{ selectedEvent.details.room }}</p>
               <p>
                 Entry:
                 {{
@@ -82,11 +83,7 @@
                   })
                 }}
               </p>
-              <p>
-                Time: {{ Math.floor(parseInt(selectedEvent.details.time) / 60) }}h{{
-                  parseInt(selectedEvent.details.time % 60) || ''
-                }}
-              </p>
+              <p>Description: {{ selectedEvent.details.description }}</p>
             </v-card-text>
           </v-card>
         </v-menu>
@@ -110,7 +107,7 @@ export default {
     selectedElement: null,
     selectedOpen: false,
     events: [],
-    colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
+    colors: { SDM: 'blue', MOM: 'green', LTI: 'orange' },
     requested: [],
   }),
   mounted() {
@@ -149,22 +146,29 @@ export default {
 
       nativeEvent.stopPropagation();
     },
-    async updateRange({ start, end }) {
+    async updateRange() {
       this.$loading.show();
-      if (!this.requested.includes('' + start.month + start.year)) {
-        await this.pushEvents(start.month, start.year);
-        this.requested.push('' + start.month + start.year);
-      }
-      if (!this.requested.includes('' + end.month + end.year)) {
-        await this.pushEvents(end.month, end.year);
-        this.requested.push('' + end.month + end.year);
-      }
+
+      await this.pushEvents();
+
       this.$loading.hide();
     },
-    async pushEvents(month, year) {
+    async pushEvents() {
       const events = [];
-      const data = await getHours(month, year);
-      console.log(data);
+      const data = (await getHours()).data;
+
+      for (const event of data) {
+        if (!this.events.find((el) => el.name === event.title)) {
+          events.push({
+            name: event.title,
+            start: new Date(event.entry),
+            end: new Date(event.exit),
+            color: this.colors[event.room],
+            timed: true,
+            details: event,
+          });
+        }
+      }
       /*
       const allHours = (await getHours(month, year)).data;
       //   const min = new Date(`${start.date}T00:00:00`);
@@ -181,9 +185,7 @@ export default {
       }
       this.events = events.concat(this.events);
       */
-    },
-    rnd(a, b) {
-      return Math.floor((b - a + 1) * Math.random()) + a;
+      this.events = events.concat(this.events);
     },
   },
 };

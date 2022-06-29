@@ -17,15 +17,25 @@ module.exports = {
     let response = [];
 
     for (const key in rooms) {
-      const data = await controller.getHours(req.db, req.query.month, req.query.year, rooms[key]);
+      const data = await controller.getHours(req.db, rooms[key]);
       if (data) {
-        const response_individual = data.events.map((x) => ({
-          title: x.title,
-          entry: x.period.start,
-          exit: x.period.end,
-          description: x.description,
-          room: data.name,
-        }));
+        const response_individual = data.events.map((x) => {
+          let start = x.period.start.split('/');
+          start = [start[1], start[0], start[2]];
+          start = start.reduce((cur, prev) => `${cur}${prev}/`, '');
+
+          let end = x.period.end.split('/');
+          end = [end[1], end[0], end[2]];
+          end = end.reduce((cur, prev) => `${cur}${prev}/`, '');
+
+          return {
+            title: x.title,
+            entry: start.slice(0, -1),
+            exit: end.slice(0, -1),
+            description: x.description,
+            room: data.name,
+          };
+        });
 
         response = [...response, ...response_individual];
       }
