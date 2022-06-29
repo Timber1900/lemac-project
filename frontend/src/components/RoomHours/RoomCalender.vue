@@ -90,6 +90,7 @@
                             v-if="menu"
                             v-model="editedItem.entry"
                             :max="editedItem.exit"
+                            :min="'9:00'"
                             full-width
                             format="24hr"
                           >
@@ -136,6 +137,7 @@
                             v-if="menu2"
                             v-model="editedItem.exit"
                             :min="editedItem.entry"
+                            :max="'21:00'"
                             full-width
                             format="24hr"
                           >
@@ -160,7 +162,7 @@
                         name="name"
                         label="Name for reservation"
                         required
-                        :rules="[() => !!editedItem.entry || 'This field is required']"
+                        :rules="[() => !!name || 'This field is required']"
                       ></v-text-field>
                       <v-spacer></v-spacer>
                       <v-text-field
@@ -170,7 +172,7 @@
                         name="ist_number"
                         label="Ist ID (ist1*)"
                         required
-                        :rules="[() => !!editedItem.entry || 'This field is required']"
+                        :rules="[() => !!ist_id || 'This field is required']"
                       ></v-text-field>
                     </v-row>
                     <v-row>
@@ -179,7 +181,7 @@
                         :items="items"
                         label="Room"
                         required
-                        :rules="[() => !!editedItem.entry || 'This field is required']"
+                        :rules="[() => !!items || 'This field is required']"
                       ></v-select>
                     </v-row>
                   </v-container>
@@ -266,6 +268,201 @@
               </p>
               <p>Description: {{ selectedEvent.details.description }}</p>
             </v-card-text>
+            <v-card-actions v-if="typeof selectedEvent.details.id === 'number'">
+              <v-dialog v-model="dialogCard" max-width="550px" transition="dialog-transition">
+                <template #activator="{ on, attrs }">
+                  <v-btn color="primary" text v-bind="attrs" v-on="on">
+                    <v-icon>mdi-pencil-outline</v-icon>
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-form ref="form" lazy-validation @submit.prevent="save">
+                    <v-card-title> Add event </v-card-title>
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
+                          <v-menu
+                            ref="menu4"
+                            v-model="menu4"
+                            :close-on-content-click="false"
+                            :close-on-click="false"
+                            :nudge-right="40"
+                            :return-value.sync="editedItem.date"
+                            transition="scale-transition"
+                            offset-y
+                          >
+                            <template #activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="editedItem.date"
+                                label="Date for reservation"
+                                prepend-icon="mdi-calendar"
+                                readonly
+                                required
+                                :rules="[() => !!editedItem.date || 'This field is required']"
+                                v-bind="attrs"
+                                v-on="on"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker
+                              v-if="menu4"
+                              v-model="editedItem.date"
+                              :landscape="true"
+                              :reactive="true"
+                            >
+                              <v-spacer />
+                              <v-btn text color="success" @click="menu4 = false"> Cancel </v-btn>
+                              <v-btn
+                                text
+                                color="secondary"
+                                @click="$refs.menu4.save(editedItem.date)"
+                              >
+                                OK
+                              </v-btn>
+                            </v-date-picker>
+                          </v-menu>
+                        </v-row>
+                        <v-row>
+                          <v-col cols="11" sm="5">
+                            <v-menu
+                              ref="menu5"
+                              v-model="menu5"
+                              :close-on-content-click="false"
+                              :close-on-click="false"
+                              :nudge-right="40"
+                              :return-value.sync="editedItem.entry"
+                              transition="scale-transition"
+                              offset-y
+                              max-width="290px"
+                              min-width="290px"
+                            >
+                              <template #activator="{ on, attrs }">
+                                <v-text-field
+                                  v-model="editedItem.entry"
+                                  label="Entry Hours"
+                                  prepend-icon="mdi-clock-time-four-outline"
+                                  readonly
+                                  required
+                                  :rules="[() => !!editedItem.entry || 'This field is required']"
+                                  v-bind="attrs"
+                                  v-on="on"
+                                ></v-text-field>
+                              </template>
+                              <v-time-picker
+                                v-if="menu5"
+                                v-model="editedItem.entry"
+                                :max="editedItem.exit"
+                                :min="'9:00'"
+                                full-width
+                                format="24hr"
+                              >
+                                <v-spacer />
+                                <v-btn text color="success" @click="menu5 = false"> Cancel </v-btn>
+                                <v-btn
+                                  text
+                                  color="secondary"
+                                  @click="$refs.menu5.save(editedItem.entry)"
+                                >
+                                  OK
+                                </v-btn>
+                              </v-time-picker>
+                            </v-menu>
+                          </v-col>
+                          <v-spacer></v-spacer>
+                          <!--Exit hours menu-->
+                          <v-col cols="11" sm="5">
+                            <v-menu
+                              ref="menu6"
+                              v-model="menu6"
+                              :close-on-content-click="false"
+                              :close-on-click="false"
+                              :nudge-right="40"
+                              :return-value.sync="editedItem.exit"
+                              transition="scale-transition"
+                              offset-y
+                              max-width="290px"
+                              min-width="290px"
+                            >
+                              <template #activator="{ on, attrs }">
+                                <v-text-field
+                                  v-model="editedItem.exit"
+                                  label="Exit Hours"
+                                  prepend-icon="mdi-clock-time-four-outline"
+                                  readonly
+                                  required
+                                  :rules="[() => !!editedItem.exit || 'This field is required']"
+                                  v-bind="attrs"
+                                  v-on="on"
+                                ></v-text-field>
+                              </template>
+                              <v-time-picker
+                                v-if="menu6"
+                                v-model="editedItem.exit"
+                                :min="editedItem.entry"
+                                :max="'21:00'"
+                                full-width
+                                format="24hr"
+                              >
+                                <v-spacer />
+                                <v-btn text color="success" @click="menu6 = false"> Cancel </v-btn>
+                                <v-btn
+                                  text
+                                  color="secondary"
+                                  @click="$refs.menu6.save(editedItem.exit)"
+                                >
+                                  OK
+                                </v-btn>
+                              </v-time-picker>
+                            </v-menu>
+                          </v-col>
+                        </v-row>
+                        <v-row>
+                          <v-text-field
+                            id="name"
+                            ref="name_field"
+                            v-model="name"
+                            name="name"
+                            label="Name for reservation"
+                            required
+                            :rules="[() => !!name || 'This field is required']"
+                          ></v-text-field>
+                          <v-spacer></v-spacer>
+                          <v-text-field
+                            id="ist_id"
+                            ref="ist_id_field"
+                            v-model="ist_id"
+                            name="ist_number"
+                            label="Ist ID (ist1*)"
+                            required
+                            :rules="[() => !!ist_id || 'This field is required']"
+                          ></v-text-field>
+                        </v-row>
+                        <v-row>
+                          <v-select
+                            v-model="roomDropdown"
+                            :items="items"
+                            label="Room"
+                            required
+                            :rules="[() => !!roomDropdown || 'This field is required']"
+                          ></v-select>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="primary" text @click="close"> Cancel </v-btn>
+                      <v-btn color="primary" text @click="update"> Update </v-btn>
+                    </v-card-actions>
+                  </v-form>
+                </v-card>
+              </v-dialog>
+
+              <v-spacer></v-spacer>
+              <v-btn v-if="!selectedEvent.givenKey" color="primary" text @click="giveKey()"
+                >Give key</v-btn
+              >
+              <v-btn v-else color="primary" text @click="giveKey()">Receive key</v-btn>
+              <v-btn color="primary" text @click="deleteEvent(selectedEvent.details)">Delete</v-btn>
+            </v-card-actions>
           </v-card>
         </v-menu>
       </v-sheet>
@@ -274,7 +471,13 @@
 </template>
 
 <script>
-import { getHoursFenix, getHours } from '@/api/room_hours.api';
+import {
+  getHoursFenix,
+  getHours,
+  createHours,
+  deleteHours,
+  updateHours,
+} from '@/api/room_hours.api';
 export default {
   data: () => ({
     focus: '',
@@ -287,9 +490,13 @@ export default {
     menu: false,
     menu2: false,
     menu3: false,
+    menu4: false,
+    menu5: false,
+    menu6: false,
     date: false,
     roomDropdown: '',
     dialog: false,
+    dialogCard: false,
     selectedEvent: {},
     selectedElement: null,
     selectedOpen: false,
@@ -305,6 +512,25 @@ export default {
     name: '',
     ist_id: '',
   }),
+  watch: {
+    dialogCard(visible) {
+      if (visible) {
+        this.editedItem.date = this.selectedEvent.details.entry.split('T')[0];
+        this.editedItem.entry = this.selectedEvent.details.entry.split('T')[1].slice(0, -5);
+        this.editedItem.exit = this.selectedEvent.details.exit.split('T')[1].slice(0, -5);
+        this.name = this.selectedEvent.details.user.name;
+        this.ist_id = this.selectedEvent.details.user.id;
+        this.roomDropdown = this.selectedEvent.details.room;
+      } else if (!visible) {
+        this.close();
+      }
+    },
+    dialog(visible) {
+      if (!visible) {
+        this.close();
+      }
+    },
+  },
   mounted() {
     this.$refs.calendar.checkChange();
   },
@@ -315,7 +541,11 @@ export default {
     },
 
     getEventColor(event) {
-      return event.color;
+      if (event.givenKey) {
+        return `${event.color} darken-4`;
+      } else {
+        return event.color;
+      }
     },
     setToday() {
       this.focus = '';
@@ -326,6 +556,7 @@ export default {
     next() {
       this.$refs.calendar.next();
     },
+
     showEvent({ nativeEvent, event }) {
       const open = () => {
         this.selectedEvent = event;
@@ -342,6 +573,7 @@ export default {
 
       nativeEvent.stopPropagation();
     },
+
     async updateRange({ start, end }) {
       this.$loading.show();
 
@@ -357,13 +589,13 @@ export default {
       }
       this.$loading.hide();
     },
+
     async pushEvents(month, year) {
       const events = [];
       const data = (await getHours(month, year)).data;
 
       for (const event of data) {
         event.title = `Reservation of ${event.user.name}`;
-
         events.push({
           name: event.title,
           start: new Date(event.entry),
@@ -371,12 +603,51 @@ export default {
           color: this.colors[event.room],
           timed: true,
           id: event.id,
+          givenKey: event.givenKey,
           details: event,
         });
       }
 
       this.events = events.concat(this.events);
     },
+
+    async updateEvents(response) {
+      const event = response.data;
+
+      event.title = `Reservation of ${event.user.name}`;
+      let found = false;
+      this.events = this.events.map((value) => {
+        if (value.id === event.id) {
+          found = true;
+          return {
+            name: event.title,
+            start: new Date(event.entry),
+            end: new Date(event.exit),
+            color: this.colors[event.room],
+            timed: true,
+            id: event.id,
+            givenKey: event.givenKey,
+            details: event,
+          };
+        } else {
+          return value;
+        }
+      });
+
+      if (!found) {
+        let ev = {
+          name: event.title,
+          start: new Date(event.entry),
+          end: new Date(event.exit),
+          color: this.colors[event.room],
+          timed: true,
+          id: event.id,
+          details: event,
+        };
+        this.events = [...this.events, ev];
+      }
+    },
+
     async pushEventsFenix() {
       const events = [];
       const data = (await getHoursFenix()).data;
@@ -390,6 +661,7 @@ export default {
             color: this.colors[event.room],
             timed: true,
             id: event.id,
+            givenKey: false,
             details: event,
           });
         }
@@ -397,13 +669,21 @@ export default {
 
       this.events = events.concat(this.events);
     },
+
     close() {
       this.dialog = false;
+      this.dialogCard = false;
       this.$refs.form.resetValidation();
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
+        this.editedItem = {
+          entry: '',
+          exit: '',
+          date: '',
+        };
         this.day = '';
+        this.name = '';
+        this.room = '';
+        this.ist_id = '';
       });
     },
 
@@ -411,40 +691,96 @@ export default {
       // Don't save if validation is unsuccessful
       if (!this.$refs.form.validate()) return;
       try {
-        console.log(this.ist_id);
-        console.log(this.name);
-        console.log(this.roomDropdown);
-        console.log(this.editedItem);
+        const addItem = {
+          entry: `${this.editedItem.date}T${this.editedItem.entry}Z`,
+          exit: `${this.editedItem.date}T${this.editedItem.exit}Z`,
+          reservation_id: this.ist_id,
+          room: this.roomDropdown,
+          name: this.name,
+        };
 
+        const response = await createHours(addItem);
+
+        this.$notify({
+          type: 'success',
+          title: 'Entry created',
+          text: `You have created entry ${response.data.id}`,
+        });
+
+        this.updateEvents(response);
         this.ist_id = '';
         this.name = '';
         this.roomDropdown = '';
-        /*
-        if (this.editedIndex > -1) {
-          this.editedItem.entry = this.day + this.editedItem.entry + ':000Z';
-          this.editedItem.exit = this.day + this.editedItem.exit + ':000Z';
-          const response = await updateHours(this.hours[this.editedIndex].id, this.editedItem);
-          this.hours.splice(this.editedIndex, 1, response.data);
-          this.$notify({
-            type: 'success',
-            title: 'Entry updated',
-            text: `You have updated entry ${response.data.id}`,
-          });
-        } else {
-          const now = new Date().toJSON();
-          this.editedItem.entry = now.slice(0, 11) + this.editedItem.entry + ':000Z';
-          this.editedItem.exit = now.slice(0, 11) + this.editedItem.exit + ':000Z';
-          const response = await createHours(this.editedItem);
-          this.hours.push(response.data);
-          this.$notify({
-            type: 'success',
-            title: 'Entry created',
-            text: `You have created entry ${response.data.id}`,
-          });
-        }
-        */
       } finally {
         this.close();
+      }
+    },
+
+    async update() {
+      if (!this.$refs.form.validate()) return;
+      try {
+        const addItem = {
+          entry: `${this.editedItem.date}T${this.editedItem.entry}Z`,
+          exit: `${this.editedItem.date}T${this.editedItem.exit}Z`,
+          reservation_id: this.ist_id,
+          room: this.roomDropdown,
+          name: this.name,
+          givenKey: this.selectedEvent.details.givenKey,
+        };
+
+        const response = await updateHours(this.selectedEvent.details.id, addItem);
+
+        this.$notify({
+          type: 'success',
+          title: 'Entry created',
+          text: `You have created entry ${response.data.id}`,
+        });
+
+        this.updateEvents(response);
+        this.ist_id = '';
+        this.name = '';
+        this.roomDropdown = '';
+      } finally {
+        this.close();
+      }
+    },
+
+    async deleteEvent(event) {
+      await deleteHours(event.id);
+      this.events = this.events.filter((val) => val.id !== event.id);
+
+      this.$notify({
+        type: 'success',
+        title: 'Entry deleted',
+        text: `You have deleted entry ${event.id}`,
+      });
+    },
+
+    async giveKey() {
+      try {
+        const addItem = {
+          entry: this.selectedEvent.details.entry,
+          exit: this.selectedEvent.details.exit,
+          reservation_id: this.selectedEvent.details.user.id,
+          room: this.selectedEvent.details.room,
+          name: this.selectedEvent.details.user.name,
+          givenKey: !this.selectedEvent.givenKey,
+        };
+
+        const response = await updateHours(this.selectedEvent.details.id, addItem);
+
+        this.$notify({
+          type: 'success',
+          title: 'Key was given/received',
+          text: `You have sucessfully given/received the key`,
+        });
+
+        this.updateEvents(response);
+        this.ist_id = '';
+        this.name = '';
+        this.roomDropdown = '';
+      } finally {
+        this.selectedOpen = false;
       }
     },
   },

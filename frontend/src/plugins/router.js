@@ -10,7 +10,7 @@ import Users from '@/pages/Users.vue';
 import Hours from '@/pages/Hours.vue';
 import Workstations from '@/pages/Workstations.vue';
 import Publications from '@/pages/Publications.vue';
-import Test from '@/pages/Test.vue';
+import Rooms from '@/pages/Rooms.vue';
 
 Vue.use(VueRouter);
 
@@ -58,10 +58,10 @@ const routes = [
     meta: { title: 'Announcements', navBar: NavBar },
   },
   {
-    path: '/test',
-    name: 'test',
-    component: Test,
-    meta: { title: 'Test', navBar: NavBar },
+    path: '/rooms',
+    name: 'rooms',
+    component: Rooms,
+    meta: { title: 'Room Reservation', navBar: NavBar },
   },
   {
     path: '*',

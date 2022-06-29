@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import RoomCalenderVue from '@/components/Test/RoomCalender.vue';
+import RoomCalenderVue from '@/components/RoomHours/RoomCalender.vue';
 import { mapGetters } from 'vuex';
 
 export default {

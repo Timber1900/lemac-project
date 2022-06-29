@@ -64,8 +64,10 @@ module.exports = {
         entry: x.entry,
         exit: x.exit,
         room: x.room,
+        givenKey: x.given_key,
         user: {
-          name: x.username,
+          name: x.reservation_name,
+          id: x.reservation_id,
         },
       }));
       res.json(response);
@@ -89,17 +91,23 @@ module.exports = {
       const data = await controller.addHours(
         req.db,
         body,
-        req.body.id,
+        req.user.id,
         req.body.room,
-        req.body.name
+        req.body.name,
+        req.body.reservation_id
       );
+
       const response = {
         id: data.id,
         userId: data.user_id,
         entry: data.entry,
         exit: data.exit,
         room: data.room,
-        name: data.username,
+        givenKey: data.given_key,
+        user: {
+          name: data.reservation_name,
+          id: data.reservation_id,
+        },
       };
       res.json(response);
       return;
@@ -126,5 +134,57 @@ module.exports = {
       res.sendStatus(400);
       return;
     }
+  },
+  updateHours: async (req, res) => {
+    if (!req.user) {
+      res.sendStatus(401);
+      return;
+    }
+
+    console.log(req.body);
+    if (
+      req.body &&
+      req.body.entry &&
+      req.body.exit &&
+      req.body.room &&
+      req.body.name &&
+      req.body.reservation_id
+    ) {
+      const body = {
+        entry: timeJs2SQL(req.body.entry),
+        exit: timeJs2SQL(req.body.exit),
+      };
+      //how to verifie that the hours exists in db
+      const data = await controller.updateHours(
+        req.db,
+        body,
+        req.params.id,
+        req.user.id,
+        req.body.room,
+        req.body.name,
+        req.body.reservation_id,
+        req.body.givenKey
+      );
+      if (!data) {
+        res.sendStatus(404);
+        return;
+      }
+      const response = {
+        id: data.id,
+        userId: data.user_id,
+        entry: data.entry,
+        exit: data.exit,
+        room: data.room,
+        givenKey: data.given_key,
+        user: {
+          name: data.reservation_name,
+          id: data.reservation_id,
+        },
+      };
+
+      res.json(response);
+      return;
+    }
+    res.sendStatus(400);
   },
 };

@@ -22,7 +22,17 @@ CREATE TABLE IF NOT EXISTS `room_hours` (
   `entry` datetime,
   `exit` datetime,
   `room` varchar(255),
-  `username` varchar(255)
+  `reservation_name` varchar(255),
+  `reservation_id` int,
+  `given_key` boolean DEFAULT false
+)
+
+CREATE TABLE IF NOT EXISTS `room_events` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `type` varchar(255),
+  `user_id` int,
+  `room_data_id` int,
+  `created_at` timestamp DEFAULT (now())
 )
 
 CREATE TABLE IF NOT EXISTS `workstations` (

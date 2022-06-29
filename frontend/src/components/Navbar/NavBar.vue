@@ -96,7 +96,7 @@ export default {
         {
           text: 'Room Management',
           icon: 'mdi-table-chair',
-          link: '/test',
+          link: '/rooms',
           permission: 1,
         },
       ],

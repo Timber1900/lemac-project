@@ -26,11 +26,11 @@ module.exports = {
       return;
     }
   },
-  addHours: async (database, hours, userId, room, name) => {
+  addHours: async (database, hours, userId, room, name, reservationId) => {
     try {
       await database.execute(
-        'INSERT INTO `room_hours` (user_id, entry, `exit`, room, username) VALUES ( ? , ? , ? , ? , ?)',
-        [userId, hours.entry, hours.exit, room, name]
+        'INSERT INTO `room_hours` (user_id, entry, `exit`, room, reservation_name, reservation_id) VALUES ( ? , ? , ? , ? , ? , ?)',
+        [userId, hours.entry, hours.exit, room, name, reservationId]
       );
 
       const [results] = await database.execute(
@@ -51,6 +51,20 @@ module.exports = {
       return true;
     } catch (e) {
       console.error(e);
+    }
+  },
+  updateHours: async (database, hours, id, userId, room, name, reservationId, givenKey) => {
+    try {
+      const [check] = await database.execute('SELECT * FROM room_hours WHERE id=?', [id]);
+      if (check.length === 0) return false;
+      await database.execute(
+        'UPDATE room_hours SET entry = ?, `exit` = ?, user_id = ?, room = ?, reservation_name = ?, reservation_id = ?, given_key = ? WHERE id = ?',
+        [hours.entry, hours.exit, userId, room, name, reservationId, givenKey, id]
+      );
+      const [results] = await database.execute('SELECT * FROM room_hours WHERE id= ?', [id]);
+      return results[0];
+    } catch (e) {
+      return e.code;
     }
   },
 };
