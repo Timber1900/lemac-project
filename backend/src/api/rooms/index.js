@@ -1,7 +1,12 @@
 const controller = require('./controller');
 
+const timeJs2SQL = (jsTime) => {
+  const sqlTime = jsTime.replace('T', ' ').slice(0, -1);
+  return sqlTime;
+};
+
 module.exports = {
-  getHours: async (req, res) => {
+  getHoursFenix: async (req, res) => {
     //auth check
     if (!req.user || !req.user.admin) {
       res.sendStatus(401);
@@ -17,7 +22,7 @@ module.exports = {
     let response = [];
 
     for (const key in rooms) {
-      const data = await controller.getHours(req.db, rooms[key]);
+      const data = await controller.getHoursFenix(req.db, rooms[key]);
       if (data) {
         const response_individual = data.events.map((x) => {
           let start = x.period.start.split('/');
@@ -34,37 +39,92 @@ module.exports = {
             exit: end.slice(0, -1),
             description: x.description,
             room: data.name,
+            id: `${data.name}-${start.slice(0, -1)}-${end.slice(0, -1)}`,
           };
         });
 
         response = [...response, ...response_individual];
       }
     }
-
     res.json(response);
-
-    /*
-    if (data.length === 0) {
-      //no hours in db
-      res.json([]);
+  },
+  getHours: async (req, res) => {
+    if (!req.user || !req.user.admin) {
+      res.sendStatus(401);
       return;
+    }
+    const data = await controller.getHours(req.db, req.query.month, req.query.year);
+
+    if (data.length === 0) {
+      res.json([]);
     } else if (data.length > 0) {
       const response = data.map((x) => ({
         id: x.id,
         userId: x.user_id,
         entry: x.entry,
         exit: x.exit,
-        time: x.time,
+        room: x.room,
         user: {
-          name: x.name,
+          name: x.username,
         },
       }));
       res.json(response);
       return;
     } else {
-      //bad request
       res.sendStatus(400);
     }
-    */
+  },
+  addHours: async (req, res) => {
+    if (!req.user) {
+      res.sendStatus(401);
+      return;
+    }
+
+    if (req.body && req.body.entry && req.body.exit) {
+      const body = {
+        entry: timeJs2SQL(req.body.entry),
+        exit: timeJs2SQL(req.body.exit),
+      };
+
+      const data = await controller.addHours(
+        req.db,
+        body,
+        req.body.id,
+        req.body.room,
+        req.body.name
+      );
+      const response = {
+        id: data.id,
+        userId: data.user_id,
+        entry: data.entry,
+        exit: data.exit,
+        room: data.room,
+        name: data.username,
+      };
+      res.json(response);
+      return;
+    }
+    res.sendStatus(400);
+  },
+
+  deleteHours: async (req, res) => {
+    if (!req.user) {
+      res.sendStatus(401);
+      return;
+    }
+
+    try {
+      const conf = await controller.deleteHours(req.db, req.params.id);
+      if (conf) {
+        res.sendStatus(204);
+        return;
+      } else {
+        res.sendStatus(404);
+        return;
+      }
+    } catch (e) {
+      res.sendStatus(400);
+      return;
+    }
   },
 };

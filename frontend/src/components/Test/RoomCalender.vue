@@ -14,6 +14,113 @@
             {{ $refs.calendar.title }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
+          <v-dialog v-model="dialog" max-width="550px" transition="dialog-transition">
+            <template #activator="{ on, attrs }">
+              <v-btn color="secondary" class="mr-4" v-bind="attrs" v-on="on">Add event</v-btn>
+            </template>
+            <v-card>
+              <v-form>
+                <v-card-title> Add event </v-card-title>
+                <v-card-text>
+                  <v-container>
+                    <v-row>
+                      <v-col cols="11" sm="5">
+                        <v-menu
+                          ref="menu"
+                          v-model="menu"
+                          :close-on-content-click="false"
+                          :close-on-click="false"
+                          :nudge-right="40"
+                          :return-value.sync="editedItem.entry"
+                          transition="scale-transition"
+                          offset-y
+                          max-width="290px"
+                          min-width="290px"
+                        >
+                          <template #activator="{ on, attrs }">
+                            <v-text-field
+                              v-model="editedItem.entry"
+                              label="Entry Hours"
+                              prepend-icon="mdi-clock-time-four-outline"
+                              readonly
+                              required
+                              :rules="[() => !!editedItem.entry || 'This field is required']"
+                              v-bind="attrs"
+                              v-on="on"
+                            ></v-text-field>
+                          </template>
+                          <v-time-picker
+                            v-if="menu"
+                            v-model="editedItem.entry"
+                            :max="editedItem.exit"
+                            full-width
+                            format="24hr"
+                          >
+                            <v-spacer />
+                            <v-btn text color="success" @click="menu = false"> Cancel </v-btn>
+                            <v-btn
+                              text
+                              color="secondary"
+                              @click="$refs.menu.save(editedItem.entry)"
+                            >
+                              OK
+                            </v-btn>
+                          </v-time-picker>
+                        </v-menu>
+                      </v-col>
+                      <v-spacer></v-spacer>
+                      <!--Exit hours menu-->
+                      <v-col cols="11" sm="5">
+                        <v-menu
+                          ref="menu2"
+                          v-model="menu2"
+                          :close-on-content-click="false"
+                          :close-on-click="false"
+                          :nudge-right="40"
+                          :return-value.sync="editedItem.exit"
+                          transition="scale-transition"
+                          offset-y
+                          max-width="290px"
+                          min-width="290px"
+                        >
+                          <template #activator="{ on, attrs }">
+                            <v-text-field
+                              v-model="editedItem.exit"
+                              label="Exit Hours"
+                              prepend-icon="mdi-clock-time-four-outline"
+                              readonly
+                              required
+                              :rules="[() => !!editedItem.exit || 'This field is required']"
+                              v-bind="attrs"
+                              v-on="on"
+                            ></v-text-field>
+                          </template>
+                          <v-time-picker
+                            v-if="menu2"
+                            v-model="editedItem.exit"
+                            :min="editedItem.entry"
+                            full-width
+                            format="24hr"
+                          >
+                            <v-spacer />
+                            <v-btn text color="success" @click="menu2 = false"> Cancel </v-btn>
+                            <v-btn
+                              text
+                              color="secondary"
+                              @click="$refs.menu2.save(editedItem.exit)"
+                            >
+                              OK
+                            </v-btn>
+                          </v-time-picker>
+                        </v-menu>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-card-text>
+              </v-form>
+            </v-card>
+          </v-dialog>
+
           <v-menu bottom right offset-y>
             <template #activator="{ on, attrs }">
               <v-btn color="secondary" v-bind="attrs" v-on="on">
@@ -62,12 +169,14 @@
               <v-spacer></v-spacer>
             </v-toolbar>
             <v-card-text>
-              <p>Classroom: {{ selectedEvent.details.room }}</p>
+              <p>
+                Classroom: <b>{{ selectedEvent.details.room }}</b>
+              </p>
               <p>
                 Entry:
                 {{
                   new Date(selectedEvent.details.entry).toLocaleString(undefined, {
-                    dateStyle: 'short',
+                    dateStyle: 'long',
                     timeStyle: 'short',
                     timeZone: 'UTC',
                   })
@@ -77,7 +186,7 @@
                 Exit:
                 {{
                   new Date(selectedEvent.details.exit).toLocaleString(undefined, {
-                    dateStyle: 'short',
+                    dateStyle: 'long',
                     timeStyle: 'short',
                     timeZone: 'UTC',
                   })
@@ -85,6 +194,11 @@
               </p>
               <p>Description: {{ selectedEvent.details.description }}</p>
             </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" text @click="close"> Cancel </v-btn>
+              <v-btn color="primary" text @click="save"> Save </v-btn>
+            </v-card-actions>
           </v-card>
         </v-menu>
       </v-sheet>
@@ -93,7 +207,7 @@
 </template>
 
 <script>
-import { getHours } from '@/api/room_hours.api';
+import { getHoursFenix, getHours } from '@/api/room_hours.api';
 export default {
   data: () => ({
     focus: '',
@@ -108,6 +222,10 @@ export default {
     selectedOpen: false,
     events: [],
     colors: { SDM: 'blue', MOM: 'green', LTI: 'orange' },
+    editedItem: {
+      entry: '',
+      exit: '',
+    },
     requested: [],
   }),
   mounted() {
@@ -118,6 +236,7 @@ export default {
       this.focus = date;
       this.type = 'day';
     },
+
     getEventColor(event) {
       return event.color;
     },
@@ -146,46 +265,102 @@ export default {
 
       nativeEvent.stopPropagation();
     },
-    async updateRange() {
+    async updateRange({ start, end }) {
       this.$loading.show();
 
-      await this.pushEvents();
+      await this.pushEventsFenix();
 
+      if (!this.requested.includes('' + start.month + start.year)) {
+        await this.pushEvents(start.month, start.year);
+        this.requested.push('' + start.month + start.year);
+      }
+      if (!this.requested.includes('' + end.month + end.year)) {
+        await this.pushEvents(end.month, end.year);
+        this.requested.push('' + end.month + end.year);
+      }
       this.$loading.hide();
     },
-    async pushEvents() {
+    async pushEvents(month, year) {
       const events = [];
-      const data = (await getHours()).data;
+      const data = (await getHours(month, year)).data;
 
       for (const event of data) {
-        if (!this.events.find((el) => el.name === event.title)) {
+        event.title = `Reservation of ${event.user.name}`;
+
+        events.push({
+          name: event.title,
+          start: new Date(event.entry),
+          end: new Date(event.exit),
+          color: this.colors[event.room],
+          timed: true,
+          id: event.id,
+          details: event,
+        });
+      }
+
+      this.events = events.concat(this.events);
+    },
+    async pushEventsFenix() {
+      const events = [];
+      const data = (await getHoursFenix()).data;
+
+      for (const event of data) {
+        if (!this.events.find((el) => el.id === event.id)) {
           events.push({
             name: event.title,
             start: new Date(event.entry),
             end: new Date(event.exit),
             color: this.colors[event.room],
             timed: true,
+            id: event.id,
             details: event,
           });
         }
       }
-      /*
-      const allHours = (await getHours(month, year)).data;
-      //   const min = new Date(`${start.date}T00:00:00`);
-      //   const max = new Date(`${end.date}T23:59:59`);
-      for (let i = 0; i < allHours.length; i++) {
-        events.push({
-          name: allHours[i].user.name.split(' ')[0],
-          start: new Date(allHours[i].entry),
-          end: new Date(allHours[i].exit),
-          color: this.colors[this.rnd(0, this.colors.length - 1)],
-          timed: true,
-          details: allHours[i],
-        });
+
+      this.events = events.concat(this.events);
+    },
+    close() {
+      this.dialog = false;
+      this.$refs.form.resetValidation();
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+        this.day = '';
+      });
+    },
+
+    async save() {
+      // Don't save if validation is unsuccessful
+      if (!this.$refs.form.validate()) return;
+      try {
+        /*
+        if (this.editedIndex > -1) {
+          this.editedItem.entry = this.day + this.editedItem.entry + ':000Z';
+          this.editedItem.exit = this.day + this.editedItem.exit + ':000Z';
+          const response = await updateHours(this.hours[this.editedIndex].id, this.editedItem);
+          this.hours.splice(this.editedIndex, 1, response.data);
+          this.$notify({
+            type: 'success',
+            title: 'Entry updated',
+            text: `You have updated entry ${response.data.id}`,
+          });
+        } else {
+          const now = new Date().toJSON();
+          this.editedItem.entry = now.slice(0, 11) + this.editedItem.entry + ':000Z';
+          this.editedItem.exit = now.slice(0, 11) + this.editedItem.exit + ':000Z';
+          const response = await createHours(this.editedItem);
+          this.hours.push(response.data);
+          this.$notify({
+            type: 'success',
+            title: 'Entry created',
+            text: `You have created entry ${response.data.id}`,
+          });
+        }
+        */
+      } finally {
+        this.close();
       }
-      this.events = events.concat(this.events);
-      */
-      this.events = events.concat(this.events);
     },
   },
 };

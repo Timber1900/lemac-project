@@ -1,4 +1,13 @@
 import httpClient from './httpClient.api';
-const ENDPOINT = '/roomhours';
+const ENDPOINT = '/room-hours';
 
-export const getHours = () => httpClient.get(ENDPOINT);
+export const getHoursFenix = () => httpClient.get(`${ENDPOINT}/fenix`);
+export const getHours = (month, year) =>
+  httpClient.get(`${ENDPOINT}`, {
+    params: {
+      month,
+      year,
+    },
+  });
+export const createHours = (data) => httpClient.post(ENDPOINT, data);
+export const deleteHours = (id) => httpClient.delete(`${ENDPOINT}/${id}`);

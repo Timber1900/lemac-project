@@ -16,6 +16,15 @@ CREATE TABLE IF NOT EXISTS `log_hours` (
   `time` int
 );
 
+CREATE TABLE IF NOT EXISTS `room_hours` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `user_id` int,
+  `entry` datetime,
+  `exit` datetime,
+  `room` varchar(255),
+  `username` varchar(255)
+)
+
 CREATE TABLE IF NOT EXISTS `workstations` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255),
@@ -49,6 +58,8 @@ CREATE TABLE IF NOT EXISTS `publications` (
 );
 
 ALTER TABLE `log_hours` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
+
+ALTER TABLE `room_hours` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
 
 ALTER TABLE `entries` ADD FOREIGN KEY (`workstation_id`) REFERENCES `workstations` (`id`) ON DELETE SET NULL;
 
