@@ -5,6 +5,7 @@ const loghours = require('./loghours/routes');
 const entries = require('./entries/routes');
 const publications = require('./publications/routes');
 const roomhours = require('./rooms/routes');
+const roomevents = require('./room_events/routes');
 
 module.exports = {
   /*export all routes into the main express file*/
@@ -16,5 +17,6 @@ module.exports = {
     entries.init(app);
     publications.init(app);
     roomhours.init(app);
+    roomevents.init(app);
   },
 };

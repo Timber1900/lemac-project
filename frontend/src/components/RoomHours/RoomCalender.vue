@@ -478,6 +478,8 @@ import {
   deleteHours,
   updateHours,
 } from '@/api/room_hours.api';
+import { createEvent } from '@/api/room_events.api';
+
 export default {
   data: () => ({
     focus: '',
@@ -547,12 +549,15 @@ export default {
         return event.color;
       }
     },
+
     setToday() {
       this.focus = '';
     },
+
     prev() {
       this.$refs.calendar.prev();
     },
+
     next() {
       this.$refs.calendar.next();
     },
@@ -700,6 +705,10 @@ export default {
         };
 
         const response = await createHours(addItem);
+        await createEvent({
+          type: 'res_created',
+          roomDataId: response.data.id,
+        });
 
         this.$notify({
           type: 'success',
@@ -730,6 +739,11 @@ export default {
 
         const response = await updateHours(this.selectedEvent.details.id, addItem);
 
+        await createEvent({
+          type: 'res_updated',
+          roomDataId: response.data.id,
+        });
+
         this.$notify({
           type: 'success',
           title: 'Entry created',
@@ -748,6 +762,11 @@ export default {
     async deleteEvent(event) {
       await deleteHours(event.id);
       this.events = this.events.filter((val) => val.id !== event.id);
+
+      await createEvent({
+        type: 'res_deleted',
+        roomDataId: event.id,
+      });
 
       this.$notify({
         type: 'success',
@@ -768,6 +787,11 @@ export default {
         };
 
         const response = await updateHours(this.selectedEvent.details.id, addItem);
+
+        await createEvent({
+          type: this.selectedEvent.givenKey ? 'key_received' : 'key_given',
+          roomDataId: response.data.id,
+        });
 
         this.$notify({
           type: 'success',

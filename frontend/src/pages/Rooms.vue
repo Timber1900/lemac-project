@@ -2,7 +2,7 @@
   <div v-if="getPermission === 1">
     <v-tabs grow>
       <v-tab key="1">Calendar</v-tab>
-      <v-tab key="2">Hour Table</v-tab>
+      <v-tab key="2">Event Log</v-tab>
       <v-tab-item>
         <v-container>
           <RoomCalenderVue />
@@ -10,7 +10,7 @@
       </v-tab-item>
       <v-tab-item>
         <v-container>
-          <SumTable />
+          <EventLogVue />
         </v-container>
       </v-tab-item>
     </v-tabs>
@@ -25,11 +25,12 @@
 
 <script>
 import RoomCalenderVue from '@/components/RoomHours/RoomCalender.vue';
+import EventLogVue from '@/components/RoomHours/EventLog.vue';
 import { mapGetters } from 'vuex';
 
 export default {
   name: 'Test',
-  components: { RoomCalenderVue },
+  components: { RoomCalenderVue, EventLogVue },
   computed: {
     ...mapGetters('user', ['getPermission']),
   },
