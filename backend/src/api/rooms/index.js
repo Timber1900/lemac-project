@@ -141,7 +141,6 @@ module.exports = {
       return;
     }
 
-    console.log(req.body);
     if (
       req.body &&
       req.body.entry &&

@@ -29,7 +29,7 @@ import EventLogVue from '@/components/RoomHours/EventLog.vue';
 import { mapGetters } from 'vuex';
 
 export default {
-  name: 'Test',
+  name: 'Rooms',
   components: { RoomCalenderVue, EventLogVue },
   computed: {
     ...mapGetters('user', ['getPermission']),

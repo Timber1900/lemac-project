@@ -45,8 +45,8 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" text> Cancel </v-btn>
-                <v-btn color="primary" text> Save </v-btn>
+                <v-btn color="primary" text @click="cancel()"> Cancel </v-btn>
+                <v-btn color="primary" text @click="addObservation(editedItem)"> Save </v-btn>
               </v-card-actions>
             </v-form>
           </v-card>
@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { getEvents, deleteEvent } from '@/api/room_events.api';
+import { getEvents, deleteEvent, updateEvent } from '@/api/room_events.api';
 import { getUsers } from '@/api/user.api';
 export default {
   name: 'SumTable',
@@ -88,8 +88,13 @@ export default {
   },
   async mounted() {
     this.$loading.show();
+    const date = new Date();
+    date.setDate(date.getDate() - date.getDay());
+    this.dates[0] = date.toISOString().slice(0, 10);
+    date.setDate(date.getDate() + 6);
+    this.dates[1] = date.toISOString().slice(0, 10);
 
-    const data_response = (await getEvents()).data;
+    const data_response = (await getEvents(this.dates[0], this.dates[1])).data;
     const users = (await getUsers()).data;
 
     for (const value of data_response) {
@@ -98,6 +103,7 @@ export default {
         ...this.data,
         {
           type: `${this.getReservationText(value.type)}`,
+          ogType: value.type,
           res: value.roomId,
           user: user.name,
           id: value.id,
@@ -113,20 +119,24 @@ export default {
 
     this.$loading.hide();
   },
+
   methods: {
     async update() {
       this.$loading.show();
       this.data = [];
-      const data_response = (await getEvents()).data;
+
+      if (new Date(this.dates[0]) > new Date(this.dates[1])) this.dates.reverse();
+
+      const data_response = (await getEvents(this.dates[0], this.dates[1])).data;
       const users = (await getUsers()).data;
 
       for (const value of data_response) {
         const user = users.find((val) => val.id === value.userId);
-
         this.data = [
           ...this.data,
           {
             type: `${this.getReservationText(value.type)}`,
+            ogType: value.type,
             res: value.roomId,
             user: user.name,
             id: value.id,
@@ -139,6 +149,7 @@ export default {
           },
         ];
       }
+
       this.$loading.hide();
     },
     getReservationText(type) {
@@ -190,6 +201,36 @@ export default {
         this.editedIndex = this.data.indexOf(item);
         this.editedItem = Object.assign({}, item);
       });
+    },
+    async addObservation(item) {
+      try {
+        const updateItem = {
+          type: item.ogType,
+          roomDataId: item.res,
+          observations: item.observations,
+        };
+
+        const response = (await updateEvent(item.id, updateItem)).data;
+
+        this.data = this.data.map((val) => {
+          if (val.id === response.id) {
+            val.observations = response.observations;
+          }
+
+          return val;
+        });
+
+        this.$notify({
+          type: 'success',
+          title: 'Entry created',
+          text: `You have created entry ${response.id}`,
+        });
+      } finally {
+        this.dialogObs = false;
+      }
+    },
+    cancel() {
+      this.dialogObs = false;
     },
   },
 };

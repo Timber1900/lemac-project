@@ -266,7 +266,15 @@
                   })
                 }}
               </p>
-              <p>Description: {{ selectedEvent.details.description }}</p>
+              <span v-if="typeof selectedEvent.details.id === 'number'">
+                <b>Oberservations:</b>
+                <span v-for="event in selectedEvent.details.events" :key="event.id" center>
+                  <p v-if="event.observations" style="margin-bottom: 0">
+                    {{ event.observations }}
+                  </p>
+                </span>
+              </span>
+              <p v-else>Description: {{ selectedEvent.details.description }}</p>
             </v-card-text>
             <v-card-actions v-if="typeof selectedEvent.details.id === 'number'">
               <v-dialog v-model="dialogCard" max-width="550px" transition="dialog-transition">
@@ -478,7 +486,7 @@ import {
   deleteHours,
   updateHours,
 } from '@/api/room_hours.api';
-import { createEvent } from '@/api/room_events.api';
+import { createEvent, getEvents } from '@/api/room_events.api';
 
 export default {
   data: () => ({
@@ -596,11 +604,22 @@ export default {
     },
 
     async pushEvents(month, year) {
+      const date = new Date();
+      const dates = [];
+      date.setDate(date.getDate() - date.getDay());
+      dates[0] = date.toISOString().slice(0, 10);
+      date.setDate(date.getDate() + 6);
+      dates[1] = date.toISOString().slice(0, 10);
+
       const events = [];
       const data = (await getHours(month, year)).data;
+      const data_events = (await getEvents(dates[0], dates[1])).data;
 
       for (const event of data) {
+        const data_event = data_events.filter((val) => val.roomId === event.id);
         event.title = `Reservation of ${event.user.name}`;
+        event.events = data_event;
+
         events.push({
           name: event.title,
           start: new Date(event.entry),

@@ -33,8 +33,7 @@ module.exports = {
       res.sendStatus(401);
       return;
     }
-
-    const data = await controller.getEvents(req.db);
+    const data = await controller.getEvents(req.db, req.query.start, req.query.finish);
 
     if (data.length === 0) {
       res.json([]);
@@ -53,7 +52,38 @@ module.exports = {
       res.sendStatus(400);
     }
   },
-  editEvent: async (req, res) => {},
+  editEvent: async (req, res) => {
+    if (!req.user) {
+      res.sendStatus(401);
+      return;
+    }
+    if (req.body && req.body.type && req.body.roomDataId) {
+      //how to verifie that the hours exists in db
+      const data = await controller.editEvent(
+        req.db,
+        req.body.type,
+        req.params.id,
+        req.body.roomDataId,
+        req.body.observations
+      );
+      if (!data) {
+        res.sendStatus(404);
+        return;
+      }
+      const response = {
+        id: data.id,
+        userId: data.user_id,
+        roomId: data.room_data_id,
+        type: data.type,
+        observations: data.observations,
+        created_at: data.created_at,
+      };
+
+      res.json(response);
+      return;
+    }
+    res.sendStatus(400);
+  },
   deleteEvents: async (req, res) => {
     if (!req.user) {
       res.sendStatus(401);
