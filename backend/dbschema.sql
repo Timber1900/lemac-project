@@ -13,7 +13,10 @@ CREATE TABLE IF NOT EXISTS `log_hours` (
   `user_id` int,
   `entry` datetime,
   `exit` datetime,
-  `time` int
+  `time` int,
+  `entry_number` int,
+  `exit_number` int,
+  `safe_amount` int
 );
 
 CREATE TABLE IF NOT EXISTS `room_hours` (
