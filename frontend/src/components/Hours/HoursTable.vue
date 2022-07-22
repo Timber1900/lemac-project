@@ -256,8 +256,12 @@ export default {
     async dialog(val) {
       val || this.close();
       const lastEntry = (await getLastEntry()).data;
-      this.editedItem.entry_number = lastEntry.exit_number;
-      this.editedItem.safe_amount = lastEntry.safe_amount;
+      this.editedItem.entry_number = this.editedItem.entry_number
+        ? this.editedItem.entry_number
+        : lastEntry.exit_number;
+      this.editedItem.safe_amount = this.editedItem.safe_amount
+        ? this.editedItem.safe_amount
+        : lastEntry.safe_amount;
     },
     dialogDelete(val) {
       val || this.closeDelete();

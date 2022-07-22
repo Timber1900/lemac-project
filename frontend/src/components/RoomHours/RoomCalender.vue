@@ -774,6 +774,7 @@ export default {
         this.name = '';
         this.roomDropdown = '';
       } finally {
+        this.selectedOpen = false;
         this.close();
       }
     },

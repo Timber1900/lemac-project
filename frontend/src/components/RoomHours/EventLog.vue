@@ -174,7 +174,6 @@ export default {
     },
 
     async deleteItemConfirm() {
-      console.log(this.data[this.editedIndex].id);
       try {
         await deleteEvent(this.data[this.editedIndex].id);
         const deleted = this.data.splice(this.editedIndex, 1);
@@ -182,6 +181,12 @@ export default {
           type: 'success',
           title: 'Entry deleted',
           text: `You have deleted entry ${deleted[0].id}`,
+        });
+      } catch {
+        this.$notify({
+          type: 'error',
+          title: 'Error deleting',
+          text: `There was an error deleting the event`,
         });
       } finally {
         this.closeDelete();
