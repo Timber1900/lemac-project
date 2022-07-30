@@ -11,6 +11,7 @@ import Hours from '@/pages/Hours.vue';
 import Workstations from '@/pages/Workstations.vue';
 import Publications from '@/pages/Publications.vue';
 import Rooms from '@/pages/Rooms.vue';
+import Schedule from '@/pages/Schedule.vue';
 
 Vue.use(VueRouter);
 
@@ -62,6 +63,12 @@ const routes = [
     name: 'rooms',
     component: Rooms,
     meta: { title: 'Room Reservation', navBar: NavBar },
+  },
+  {
+    path: '/schedule',
+    name: 'schedule',
+    component: Schedule,
+    meta: { title: 'Monitor Schedule', navBar: NavBar },
   },
   {
     path: '*',

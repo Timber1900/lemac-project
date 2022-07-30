@@ -76,6 +76,11 @@ export default {
           link: '/hours',
         },
         {
+          text: "Monitor's Schedule",
+          icon: 'mdi-calendar-clock',
+          link: '/schedule',
+        },
+        {
           text: 'User Management',
           icon: 'mdi-account-multiple',
           link: '/users',
