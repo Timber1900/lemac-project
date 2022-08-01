@@ -14,6 +14,17 @@
             {{ $refs.calendar.title }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
+          <div style="display: flex; justify-items: center; align-items: center; padding: 0 1em">
+            <v-switch
+              v-model="switchValue"
+              fill-height
+              align-center
+              justify-center
+              inset
+              hide-details
+              label="Edit mode"
+            ></v-switch>
+          </div>
           <v-menu bottom right offset-y>
             <template #activator="{ on, attrs }">
               <v-btn color="secondary" v-bind="attrs" v-on="on">
@@ -35,7 +46,7 @@
           </v-menu>
         </v-toolbar>
       </v-sheet>
-      <v-sheet height="75vh">
+      <v-sheet>
         <v-calendar
           ref="calendar"
           v-model="value"
@@ -44,12 +55,21 @@
           :event-overlap-mode="mode"
           :event-overlap-threshold="60"
           :event-ripple="false"
+          interval-count="14"
+          first-interval="8"
           @mousedown:event="startDrag"
           @mousedown:time="startTime"
           @mousemove:time="mouseMove"
           @mouseup:time="endDrag"
           @mouseleave.native="cancelDrag"
         >
+          <template #interval="{ weekday, hour }">
+            <div
+              v-if="weekday == 0 || weekday == 6 || hour < 9 || hour >= 21"
+              style="height: 100%; width: 100%; background-color: #f2f2f2"
+            ></div>
+            <div v-else style="height: 100%; width: 100%"></div>
+          </template>
           <template #event="{ event, timed }">
             <div
               class="v-event-timed-container"
@@ -84,9 +104,6 @@
           </template>
         </v-calendar>
       </v-sheet>
-      <v-dialog v-model="dialog" :overlay="false" max-width="500px" transition="dialog-transition">
-        <v-card> Test </v-card>
-      </v-dialog>
     </v-col>
   </v-row>
 </template>
@@ -97,10 +114,9 @@ import { getUsers } from '@/api/user.api';
 export default {
   data: () => ({
     type: 'week',
-    types: ['month', 'week', 'day', '4day'],
     mode: 'stack',
-    modes: ['stack', 'column'],
     value: '',
+    switchValue: false,
     events: [],
     colors: [
       '#2196F3',
@@ -116,13 +132,10 @@ export default {
       '#24f021',
     ],
     dragEvent: null,
-    dragStart: null,
     lastEvent: '',
     createEvent: null,
     createStart: null,
     extendOriginal: null,
-    dialog: false,
-    isMounted: false,
     focus: '',
     typeToLabel: {
       month: 'Month',
@@ -132,28 +145,9 @@ export default {
     menu: false,
     date: false,
   }),
-  watch: {
-    dialog(visible) {
-      if (!visible) {
-        this.dialog = false;
-      }
-    },
-  },
   mounted() {
     const cal = this.$refs.calendar;
-
-    window.app = this;
-    window.cal = cal;
-
-    this.isMounted = true;
-
-    // scroll to the current time
-    const minutes = cal.times.now.hour * 60 + cal.times.now.minute;
-    const firstTime = Math.max(0, minutes - (minutes % 30) - 30);
-    cal.scrollToTime(firstTime);
-
-    // every minute update the current time bar
-    setInterval(() => cal.updateTimes(), 60 * 1000);
+    cal.scrollToTime(8.5 * 60);
 
     this.$refs.calendar.checkChange();
   },
@@ -177,11 +171,14 @@ export default {
       this.lastEvent = 'startDrag';
     },
     async startTime(e) {
+      if (!this.switchValue) return;
       const mouse = this.toDate(e);
       if (
         mouse.getHours() < 9 ||
         mouse.getHours() > 21 ||
-        (mouse.getHours() == 21 && mouse.getMinutes() != 0)
+        (mouse.getHours() == 21 && mouse.getMinutes() != 0) ||
+        mouse.getDay() == 0 ||
+        mouse.getDay() == 6
       )
         return;
 
@@ -203,6 +200,8 @@ export default {
       this.lastEvent = 'startTime';
     },
     extendBottom(event) {
+      if (!this.switchValue) return;
+
       this.createEvent = event;
       this.createStart = this.toDate(event.start).getTime();
       this.extendOriginal = event.end;
@@ -233,6 +232,10 @@ export default {
           newStart = new Date(newEnd.getTime() - duration);
         }
 
+        if (newStart.getDay() == 0 || newStart.getDay() == 6) {
+          return;
+        }
+
         this.dragEvent.start = this.toTimestamp(newStart);
         this.dragEvent.end = this.toTimestamp(newEnd);
       } else if (this.createEvent && this.createStart !== null) {
@@ -258,8 +261,6 @@ export default {
       }
     },
     endDrag() {
-      this.dialog = this.lastEvent === 'startTime';
-
       this.dragTime = null;
       this.dragEvent = null;
       this.createEvent = null;
