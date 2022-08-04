@@ -71,9 +71,19 @@ CREATE TABLE IF NOT EXISTS `publications` (
   `active` bool DEFAULT true
 );
 
+CREATE TABLE IF NOT EXISTS `monitor_schedule` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `user_id` int,
+  `entry` datetime,
+  `exit` datetime,
+  `created_at` timestamp DEFAULT (now())
+)
+
 ALTER TABLE `log_hours` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
 
 ALTER TABLE `room_hours` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
+
+ALTER TABLE `monitor_schedule` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
 
 ALTER TABLE `entries` ADD FOREIGN KEY (`workstation_id`) REFERENCES `workstations` (`id`) ON DELETE SET NULL;
 

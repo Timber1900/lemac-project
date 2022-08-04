@@ -27,6 +27,21 @@
           </div>
           <v-menu bottom right offset-y>
             <template #activator="{ on, attrs }">
+              <v-btn style="margin: 0 1em" color="secondary" v-bind="attrs" v-on="on">
+                <span>{{ active_user.name }}</span>
+                <v-icon right> mdi-menu-down </v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item v-for="user in users" :key="user.id" @click="active_user = user">
+                <v-list-item-title>
+                  {{ user.name }}
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+          <v-menu bottom right offset-y>
+            <template #activator="{ on, attrs }">
               <v-btn color="secondary" v-bind="attrs" v-on="on">
                 <span>{{ typeToLabel[type] }}</span>
                 <v-icon right> mdi-menu-down </v-icon>
@@ -39,14 +54,11 @@
               <v-list-item @click="type = 'week'">
                 <v-list-item-title>Week</v-list-item-title>
               </v-list-item>
-              <v-list-item @click="type = 'month'">
-                <v-list-item-title>Month</v-list-item-title>
-              </v-list-item>
             </v-list>
           </v-menu>
         </v-toolbar>
       </v-sheet>
-      <v-sheet>
+      <v-sheet min-height="70vh">
         <v-calendar
           ref="calendar"
           v-model="value"
@@ -96,9 +108,22 @@
                   padding-bottom: 4px;
                 "
               >
-                <v-icon v-if="hover" color="white" @mousedown.stop="extendBottom(event)"
+                <v-icon
+                  v-if="hover && switchValue"
+                  color="white"
+                  @mousedown.stop="extendBottom(event)"
                   >mdi-menu</v-icon
                 >
+                <v-btn
+                  v-if="hover && switchValue"
+                  fab
+                  text
+                  small
+                  style="position: absolute; bottom: 0; right: 0; margin: auto auto 0 0; padding: 0"
+                  @click="deleteHour(event)"
+                >
+                  <v-icon color="red">mdi-close</v-icon>
+                </v-btn>
               </div>
             </v-hover>
           </template>
@@ -110,6 +135,7 @@
 
 <script>
 import { getUsers } from '@/api/user.api';
+import { createHours, getHours, deleteHours, updateHour } from '@/api/schedule.api';
 
 export default {
   data: () => ({
@@ -136,20 +162,39 @@ export default {
     createEvent: null,
     createStart: null,
     extendOriginal: null,
-    focus: '',
     typeToLabel: {
-      month: 'Month',
       week: 'Week',
       day: 'Day',
     },
     menu: false,
     date: false,
+    users: [],
+    active_user: '',
   }),
-  mounted() {
+  async mounted() {
     const cal = this.$refs.calendar;
     cal.scrollToTime(8.5 * 60);
 
     this.$refs.calendar.checkChange();
+
+    this.users = (await getUsers()).data;
+    this.active_user = this.users.find((val) => val.current);
+
+    let events = (await getHours()).data;
+    events = events.map((val) => {
+      let user = this.users.find((user) => user.id == val.userId);
+
+      return {
+        name: user.name,
+        start: this.toTimestamp(new Date(val.entry)),
+        end: this.toTimestamp(new Date(val.exit)),
+        color: this.colors[user.id],
+        details: val,
+      };
+    });
+
+    this.events = [...this.events, ...events];
+    console.log(events);
   },
   methods: {
     formatTime(start, end) {
@@ -181,19 +226,16 @@ export default {
         mouse.getDay() == 6
       )
         return;
-
-      const users = (await getUsers()).data;
-      const active_user = users.find((val) => val.current);
       if (this.dragEvent && this.dragTime === null) {
         const start = this.toDate(this.dragEvent.start);
         this.dragTime = mouse.getTime() - start.getTime();
       } else {
         this.createStart = this.roundTime(mouse.getTime());
         this.createEvent = {
-          name: active_user ? active_user.name : 'Unkown',
+          name: this.active_user ? this.active_user.name : 'Unkown',
           start: this.toTimestamp(new Date(this.createStart)),
           end: this.toTimestamp(new Date(this.createStart)),
-          color: this.colors[active_user.id],
+          color: this.colors[this.active_user.id],
         };
         this.events.push(this.createEvent);
       }
@@ -260,7 +302,9 @@ export default {
         this.createEvent.end = this.toTimestamp(endDate);
       }
     },
-    endDrag() {
+    async endDrag() {
+      if ((!this.createEvent && !this.dragEvent) || !this.switchValue) return;
+      const event = this.createEvent ?? this.dragEvent;
       this.dragTime = null;
       this.dragEvent = null;
       this.createEvent = null;
@@ -268,6 +312,39 @@ export default {
       this.extendOriginal = null;
 
       this.lastEvent = 'endDrag';
+
+      let events = (await getHours()).data;
+      if (!this.events.find((val) => val.details?.id === event.details?.id)) return;
+
+      if (events.find((val) => val.id === event.details?.id)) {
+        let update_event = {
+          userId: event.details.userId,
+          entry: event.start,
+          exit: event.end,
+        };
+
+        await updateHour(event.details.id, update_event);
+      } else {
+        let add_event = {
+          userId: this.active_user.id,
+          entry: event.start,
+          exit: event.end,
+        };
+
+        const index = this.events.length - 1;
+
+        const data = (await createHours(add_event)).data;
+        let user = this.users.find((user) => user.id == data.userId);
+
+        let updatedEvent = {
+          name: user.name,
+          start: this.toTimestamp(new Date(data.entry)),
+          end: this.toTimestamp(new Date(data.exit)),
+          color: this.colors[user.id],
+          details: data,
+        };
+        this.events[index] = updatedEvent;
+      }
     },
     cancelDrag() {
       if (this.createEvent) {
@@ -304,13 +381,21 @@ export default {
       }-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
     },
     setToday() {
-      this.focus = '';
+      this.value = '';
     },
     prev() {
       this.$refs.calendar.prev();
     },
     next() {
       this.$refs.calendar.next();
+    },
+    async deleteHour(event) {
+      const ev = this.events.filter((val) => this.getUniqueId(val) === this.getUniqueId(event));
+      this.events = this.events.filter((val) => this.getUniqueId(val) !== this.getUniqueId(event));
+      await deleteHours(ev[0].details.id);
+    },
+    getUniqueId(event) {
+      return `${event.name}${event.start}${event.end}`;
     },
   },
 };
