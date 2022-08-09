@@ -79,6 +79,19 @@ CREATE TABLE IF NOT EXISTS `monitor_schedule` (
   `created_at` timestamp DEFAULT (now())
 )
 
+CREATE TABLE IF NOT EXISTS `monitor_hours_targets` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `user_id` int,
+  `week` int,
+  `target_hours` int,
+  `target_offset` int
+)
+
+CREATE TABLE IF NOT EXISTS `off_days` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `day` date
+)
+
 ALTER TABLE `log_hours` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
 
 ALTER TABLE `room_hours` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;

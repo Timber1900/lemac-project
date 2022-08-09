@@ -15,12 +15,6 @@
       </v-tab-item>
     </v-tabs>
   </div>
-
-  <div v-else>
-    <v-container v-if="hours" class="mt-6">
-      <HourTable :prop-hours="hours" />
-    </v-container>
-  </div>
 </template>
 
 <script>

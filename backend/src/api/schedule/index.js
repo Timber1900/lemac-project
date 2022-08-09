@@ -100,4 +100,63 @@ module.exports = {
       return;
     }
   },
+  setUserTarget: async (req, res) => {
+    if (!req.user) {
+      res.sendStatus(401);
+      return;
+    }
+
+    if (req.body && req.body.week !== null && req.body.userId !== null) {
+      //how to verifie that the hours exists in db
+      const data = await controller.setUserTargets(
+        req.db,
+        req.body.targetHours,
+        req.body.targetOffset,
+        req.body.week,
+        req.body.userId
+      );
+
+      if (!data) {
+        res.sendStatus(404);
+        return;
+      }
+      const response = {
+        id: data.id,
+        userId: data.user_id,
+        week: data.week,
+        targetHours: data.target_hours,
+        targetOffset: data.target_offset,
+      };
+
+      res.json(response);
+      return;
+    }
+    res.sendStatus(400);
+  },
+  getUserTargets: async (req, res) => {
+    if (!req.user) {
+      res.sendStatus(401);
+      return;
+    }
+
+    const data = await controller.getUserTargets(req.db);
+
+    if (data.length === 0) {
+      res.json([]);
+    } else if (data.length > 0) {
+      const response = data.map((val) => ({
+        id: val.id,
+        userId: val.user_id,
+        week: val.week,
+        targetHours: val.target_hours,
+        targetOffset: val.target_offset,
+      }));
+      res.json(response);
+      return;
+    } else {
+      res.sendStatus(400);
+    }
+  },
+  setOffDay: async (req, res) => {},
+  getOffDays: async (req, res) => {},
 };

@@ -34,7 +34,7 @@ module.exports = {
         'UPDATE monitor_schedule SET entry = ?, `exit` = ?, user_id = ? WHERE id = ?',
         [entry, exit, userId, id]
       );
-      const [results] = await database.execute('SELECT * FROM room_events WHERE id= ?', [id]);
+      const [results] = await database.execute('SELECT * FROM monitor_schedule WHERE id= ?', [id]);
       return results[0];
     } catch (e) {
       return e.code;
@@ -48,6 +48,48 @@ module.exports = {
       return true;
     } catch (e) {
       console.error(e);
+    }
+  },
+  getUserTargets: async (database) => {
+    try {
+      const [results] = await database.execute(
+        `SELECT l.*, u.name FROM monitor_hours_targets l LEFT JOIN users u USING (user_id)`
+      );
+      return results;
+    } catch (e) {
+      console.error(e);
+      return;
+    }
+  },
+  setUserTargets: async (database, targetHours, targetOffset, week, userId) => {
+    try {
+      const [results] = await database.execute(
+        `SELECT l.*, u.name FROM monitor_hours_targets l LEFT JOIN users u USING (user_id)`
+      );
+      let updated;
+      const check = results.find((val) => val.user_id === userId && val.week === week);
+      if (check) {
+        await database.execute(
+          'UPDATE monitor_hours_targets SET user_id = ?, week = ?, target_hours = ?, target_offset = ? WHERE id = ?',
+          [userId, week, targetHours, targetOffset, check.id]
+        );
+
+        [updated] = await database.execute('SELECT * FROM monitor_hours_targets WHERE id= ?', [
+          check.id,
+        ]);
+      } else {
+        await database.execute(
+          'INSERT INTO `monitor_hours_targets` (user_id, week, target_hours, target_offset) VALUES ( ? , ? , ? , ? )',
+          [userId, week, targetHours, targetOffset]
+        );
+        [updated] = await database.execute(
+          'SELECT * FROM monitor_hours_targets WHERE id=LAST_INSERT_ID()'
+        );
+      }
+
+      return updated[0];
+    } catch (e) {
+      return e.code;
     }
   },
 };
