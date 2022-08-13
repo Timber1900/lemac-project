@@ -169,6 +169,15 @@
               </div>
             </v-hover>
           </template>
+          <template #day-body="{ date }">
+            <div
+              :class="{
+                first: new Date().getDate() == new Date(date).getDate(),
+                'v-current-time': new Date().getDate() == new Date(date).getDate(),
+              }"
+              :style="{ top: nowY }"
+            ></div>
+          </template>
         </v-calendar>
       </v-sheet>
       <v-sheet class="py-3">
@@ -228,7 +237,15 @@ export default {
     users: [],
     inactive_users: [],
     active_user: '',
+    ready: false,
+    update: false,
+    nowY: '-10px',
   }),
+  computed: {
+    cal() {
+      return this.ready ? this.$refs.calendar : null;
+    },
+  },
   watch: {
     active_user() {
       this.getTargetHours();
@@ -244,6 +261,10 @@ export default {
   },
   async mounted() {
     const cal = this.$refs.calendar;
+    const now = cal.times.now;
+    now.hour++;
+    this.ready = true;
+
     cal.scrollToTime(8.5 * 60);
     Vue.use(ICS, {});
 
@@ -267,6 +288,22 @@ export default {
     });
 
     this.events = [...this.events, ...events];
+
+    const refresh = () => {
+      if (this.cal) {
+        const now = this.cal.times.now;
+        const nowDate = new Date();
+        now.hour = nowDate.getHours() + 1;
+        now.minute = nowDate.getMinutes();
+
+        this.nowY = this.cal.timeToY(this.cal.times.now) + 'px';
+      } else {
+        this.nowY = '-10px';
+      }
+      requestAnimationFrame(refresh);
+    };
+
+    refresh();
   },
   methods: {
     formatTime(start, end) {
@@ -656,3 +693,25 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+.v-current-time {
+  height: 2px;
+  background-color: #ea4335;
+  position: absolute;
+  left: -1px;
+  right: 0;
+  pointer-events: none;
+
+  &.first::before {
+    content: '';
+    position: absolute;
+    background-color: #ea4335;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-top: -5px;
+    margin-left: -6.5px;
+  }
+}
+</style>
