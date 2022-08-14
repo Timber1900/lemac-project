@@ -13,16 +13,7 @@
           <v-toolbar-title v-if="$refs.calendar">
             {{ $refs.calendar.title }}
           </v-toolbar-title>
-          <v-col
-            style="margin: 0 auto; display: flex; align-items: center; justify-content: center"
-          >
-            <div>
-              <p style="text-align: center; margin: auto">{{ active_user.name }}</p>
-              <p style="text-align: center; margin: auto">
-                Target: {{ targetHours }} - Current: {{ getUserHours() }}
-              </p>
-            </div>
-          </v-col>
+          <v-spacer></v-spacer>
           <div style="display: flex; justify-items: center; align-items: center; padding: 0 1em">
             <v-switch
               v-model="switchValue"
@@ -34,39 +25,7 @@
               label="Edit mode"
             ></v-switch>
           </div>
-          <v-dialog v-model="dialogOffset" max-width="550px" transition="dialog-transition">
-            <template #activator="{ on, attrs }">
-              <v-btn color="secondary" v-bind="attrs" v-on="on">Edit targets</v-btn>
-            </template>
-            <v-card>
-              <v-form>
-                <v-card-title> Edit targets and offsets </v-card-title>
-                <v-card-text>
-                  <v-row>
-                    <v-text-field
-                      id="target"
-                      v-model="targetHours"
-                      name="target"
-                      :label="`Target hours (${targetHours})`"
-                      class="ml-4"
-                      clearable
-                      type="number"
-                    ></v-text-field>
-                    <v-spacer></v-spacer>
-                    <v-text-field
-                      id="offset"
-                      v-model="offsetHours"
-                      name="offset"
-                      label="Hour offset"
-                      class="mr-4"
-                      clearable
-                      type="number"
-                    ></v-text-field>
-                  </v-row>
-                </v-card-text>
-              </v-form>
-            </v-card>
-          </v-dialog>
+
           <v-menu bottom right offset-y>
             <template #activator="{ on, attrs }">
               <v-btn style="margin: 0 1em" color="secondary" v-bind="attrs" v-on="on">
@@ -180,8 +139,47 @@
           </template>
         </v-calendar>
       </v-sheet>
-      <v-sheet class="py-3">
-        <v-btn color="secondary" class="ml-3" @click="downloadCalender">Download</v-btn>
+      <v-sheet class="py-3 flex flex-row items-center justify-start">
+        <v-btn color="secondary" class="mx-3" @click="downloadCalender">Download</v-btn>
+        <v-dialog v-model="dialogOffset" max-width="550px" transition="dialog-transition">
+            <template #activator="{ on, attrs }">
+              <v-btn color="secondary" v-bind="attrs" v-on="on">Edit targets</v-btn>
+            </template>
+            <v-card>
+              <v-form>
+                <v-card-title> Edit targets and offsets </v-card-title>
+                <v-card-text>
+                  <v-row>
+                    <v-text-field
+                      id="target"
+                      v-model="targetHours"
+                      name="target"
+                      :label="`Target hours (${targetHours})`"
+                      class="ml-4"
+                      clearable
+                      type="number"
+                    ></v-text-field>
+                    <v-spacer></v-spacer>
+                    <v-text-field
+                      id="offset"
+                      v-model="offsetHours"
+                      name="offset"
+                      label="Hour offset"
+                      class="mr-4"
+                      clearable
+                      type="number"
+                    ></v-text-field>
+                  </v-row>
+                </v-card-text>
+              </v-form>
+            </v-card>
+        </v-dialog>
+        <span class="inline-block grow">
+          <p style="text-align: center; margin: auto">{{ active_user.name }}</p>
+          <p style="text-align: center; margin: auto">
+            Target: {{ targetHours }} - Current: {{ getUserHours() }}
+          </p>
+        </span>
       </v-sheet>
     </v-col>
   </v-row>

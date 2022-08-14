@@ -119,7 +119,6 @@ export default {
 
     this.$loading.hide();
   },
-
   methods: {
     async update() {
       this.$loading.show();
@@ -172,7 +171,6 @@ export default {
       this.editedIndex = this.data.indexOf(item);
       this.dialogDelete = true;
     },
-
     async deleteItemConfirm() {
       try {
         await deleteEvent(this.data[this.editedIndex].id);

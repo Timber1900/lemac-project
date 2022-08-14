@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS `entries` (
   `workstation_id` int,
   `ist_id` varchar(12),
   `created_at` timestamp DEFAULT (now()),
+  `closed_at` time,
   `active` bool DEFAULT true,
   `observations` text
 );

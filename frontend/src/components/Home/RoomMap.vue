@@ -1,7 +1,7 @@
 <template>
 <div class="w-full h-full">
 
-  <div class="grid grid-rows-9 grid-cols-18 overflow-hidden">
+  <div class="grid lg:grid-rows-8 grid-rows-9 grid-cols-18 overflow-hidden">
     <div class="relative col-span-6 col-start-8 row-span-2 row-start-5 border-2 border-[#a5a5a5] flex justify-center items-center text-4xl font-semibold bg-whit">
       Monitor
       <div class="absolute my-auto right-[-48px]">
@@ -42,7 +42,7 @@
       Avisos:
     </div>
     <div class="h-full grow flex flex-col items-center justify-start">
-      <div v-for="(pub) in publications" class="lg:text-lg text-sm">
+      <div v-for="(pub) in publications" class="lg:text-lg text-sm whitespace-pre-wrap">
         <b>{{pub.title}}</b> : {{pub.text}}
       </div>
     </div>
@@ -84,7 +84,8 @@ export default {
         if(!station) return returnVal
 
         if(station.capacity == 1) returnVal.class = 'base pc-laptop'
-        if(station.occupation != 0) returnVal.class = 'base pc-active'
+        if(station.capacity == 2 && Math.abs(station.occupation - station.capacity) == 1) returnVal.class += ' pc-semiactive'
+        if(Math.abs(station.occupation - station.capacity) == 0) returnVal.class = 'base pc-active'
 
         return returnVal
       })
