@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .base {
-  @apply flex items-center justify-center aspect-square
+  @apply flex items-center justify-center aspect-square lg:text-base text-xs
 }
 
 .pc-normal {

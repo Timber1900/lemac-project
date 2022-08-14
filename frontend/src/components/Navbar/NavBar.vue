@@ -22,7 +22,6 @@
             v-if="getPermission >= (route.permission || 0)"
             :to="route.link"
             text
-            color="primary"
             class="mb-1"
             @click.stop="drawer = !drawer"
           >
