@@ -28,7 +28,7 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="6">
-                  <v-select
+                  <v-autocomplete
                     v-model="newItem.workstationId"
                     label="Workstation"
                     :items="workstations"
@@ -37,7 +37,7 @@
                     :rules="[(v) => !!v || 'Workstation is required']"
                     required
                     filled
-                  ></v-select>
+                  ></v-autocomplete>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -53,7 +53,7 @@
     <v-list>
       <template v-if="entries.length > 0">
         <template v-for="(entry, index) in entries">
-          <v-list-item :key="entry.id">
+          <v-list-item :key="entry.id" >
             <v-list-item-content>
               <v-list-item-title class="mb-2">
                 <v-chip color="secondary">
@@ -203,14 +203,15 @@ export default {
       this.editedIndex = this.entries.indexOf(item);
       this.dialogClose = true;
     },
-    // dont touch this cancer again
+    // dont touch this cancer again - lol have to kek (ass hugo)
     async loadWorkstations() {
       this.$loading.show();
-      const { data } = await getWorkstations();
+      let { data } = await getWorkstations();
+      data = data.sort((v1, v2) => v1.name.match(/\d+/)[0] < v2.name.match(/\d+/)[0] ? -1 : 1);
 
-      const available = data.filter((x) => x.occupation == 0 && x.occupation != x.capacity);
-      const partlyAvailable = data.filter((x) => x.occupation > 0 && x.occupation < x.capacity);
-      const notAvailable = data.filter((x) => x.type === 'disabled' || x.occupation === x.capacity);
+      let available = data.filter((x) => x.occupation == 0 && x.occupation != x.capacity);
+      let partlyAvailable = data.filter((x) => x.occupation > 0 && x.occupation < x.capacity);
+      let notAvailable = data.filter((x) => x.type === 'disabled' || x.occupation === x.capacity);
 
       const workstationsSorted = [{ header: 'Available' }];
       available.forEach((x) => workstationsSorted.push(x));
