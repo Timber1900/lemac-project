@@ -29,10 +29,6 @@ module.exports = {
     res.sendStatus(400);
   },
   getEvents: async (req, res) => {
-    if (!req.user || !req.user.admin) {
-      res.sendStatus(401);
-      return;
-    }
     const data = await controller.getEvents(req.db, req.query.start, req.query.finish);
 
     if (data.length === 0) {

@@ -7,12 +7,6 @@ const timeJs2SQL = (jsTime) => {
 
 module.exports = {
   getHoursFenix: async (req, res) => {
-    //auth check
-    if (!req.user || !req.user.admin) {
-      res.sendStatus(401);
-      return;
-    }
-
     const rooms = {
       SDM: 2448131364045,
       MOM: 2448131364044,
@@ -49,10 +43,6 @@ module.exports = {
     res.json(response);
   },
   getHours: async (req, res) => {
-    if (!req.user || !req.user.admin) {
-      res.sendStatus(401);
-      return;
-    }
     const data = await controller.getHours(req.db, req.query.month, req.query.year);
 
     if (data.length === 0) {

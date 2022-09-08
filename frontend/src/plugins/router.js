@@ -12,6 +12,8 @@ import Workstations from '@/pages/Workstations.vue';
 import Publications from '@/pages/Publications.vue';
 import Rooms from '@/pages/Rooms.vue';
 import Schedule from '@/pages/Schedule.vue';
+import About from '@/pages/About.vue';
+import Reservations from '@/pages/Reservations.vue';
 
 Vue.use(VueRouter);
 
@@ -21,6 +23,18 @@ const routes = [
     name: 'home',
     component: Home,
     meta: { title: 'Home', noAuth: true },
+  },
+  {
+    path: '/about',
+    name: 'about',
+    component: About,
+    meta: { title: 'About', noAuth: true },
+  },
+  {
+    path: '/reservations',
+    name: 'reservations',
+    component: Reservations,
+    meta: { title: 'Reservations', noAuth: true },
   },
   {
     path: '/login',
