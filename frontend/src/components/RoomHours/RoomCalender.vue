@@ -250,7 +250,17 @@
           @click:more="viewDay"
           @click:date="viewDay"
           @change="updateRange"
-        ></v-calendar>
+          interval-count="14"
+          first-interval="8"
+        >
+          <template #interval="{ weekday, hour, date }">
+              <div
+                v-if="hour < 9 || hour >= 21"
+                style="height: 100%; width: 100%; background-color: #f2f2f2"
+              ></div>
+              <div v-else style="height: 100%; width: 100%"></div>
+          </template>
+        </v-calendar>
         <v-menu
           v-model="selectedOpen"
           :close-on-content-click="false"

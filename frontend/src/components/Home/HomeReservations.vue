@@ -18,6 +18,29 @@
 
           <v-menu bottom right offset-y>
             <template #activator="{ on, attrs }">
+              <v-btn color="secondary" v-bind="attrs" v-on="on" class="mr-3">
+                <span>{{filter == '' ? 'Room' : filter}}</span>
+                <v-icon right> mdi-menu-down </v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item @click="filter = 'SDM'">
+                <v-list-item-title>SDM</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="filter = 'MOM'">
+                <v-list-item-title>MOM</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="filter = 'LTI'">
+                <v-list-item-title>LTI</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="filter = ''">
+                <v-list-item-title>Any</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+
+          <v-menu bottom right offset-y>
+            <template #activator="{ on, attrs }">
               <v-btn color="secondary" v-bind="attrs" v-on="on">
                 <span>{{ typeToLabel[type] }}</span>
                 <v-icon right> mdi-menu-down </v-icon>
@@ -43,15 +66,24 @@
           ref="calendar"
           v-model="focus"
           color="primary"
-          :events="events"
+          :events="filteredEvents"
           :event-color="getEventColor"
           :type="type"
           @click:more="viewDay"
           @click:date="viewDay"
           @change="updateRange"
           @click:event="showEvent"
-
-        ></v-calendar>
+          interval-count="14"
+          first-interval="8"
+        >
+        <template #interval="{ weekday, hour, date }">
+            <div
+              v-if="hour < 9 || hour >= 21"
+              style="height: 100%; width: 100%; background-color: #f2f2f2"
+            ></div>
+            <div v-else style="height: 100%; width: 100%"></div>
+        </template>
+        </v-calendar>
         <v-menu
           v-model="selectedOpen"
           :close-on-content-click="false"
@@ -143,8 +175,26 @@
     items: ['SDM', 'MOM', 'LTI'],
     name: '',
     ist_id: '',
+    filter: '',
+    filteredEvents: []
   }),
-    mounted() {
+  watch: {
+    events() {
+      if (this.filter === '') {
+        this.filteredEvents = [...this.events]
+      } else {
+        this.filteredEvents = this.events.filter(val => val.details.room == this.filter);
+      }
+    },
+    filter() {
+      if (this.filter === '') {
+        this.filteredEvents = [...this.events]
+      } else {
+        this.filteredEvents = this.events.filter(val => val.details.room == this.filter);
+      }
+    }
+  },
+  mounted() {
     },
       methods: {
         viewDay({ date }) {
@@ -239,7 +289,14 @@
 
     async pushEventsFenix() {
       const events = [];
-      const data = (await getHoursFenix()).data;
+      let date;
+      if(this.focus) {
+        date = new Intl.DateTimeFormat('pt-PT',{month:'2-digit',day:'2-digit', year:'numeric'}).format(new Date(this.focus));
+      } else {
+        date = new Intl.DateTimeFormat('pt-PT',{month:'2-digit',day:'2-digit', year:'numeric'}).format(new Date());
+      }
+
+      const data = (await getHoursFenix({date})).data;
 
       for (const event of data) {
         if (!this.events.find((el) => el.id === event.id)) {
