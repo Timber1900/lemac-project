@@ -11,7 +11,7 @@ const api = require('./api');
 
 //enables CORS in dev server
 var corsOptions = {
-  origin: [process.env.URL, "localhost:5000"],
+  origin: process.env.URL,
 };
 
 console.log(corsOptions.origin)
