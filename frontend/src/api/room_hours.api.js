@@ -1,7 +1,7 @@
 import httpClient from './httpClient.api';
 const ENDPOINT = '/room-hours';
 
-export const getHoursFenix = () => httpClient.get(`${ENDPOINT}/fenix`);
+export const getHoursFenix = (data) => httpClient.post(`${ENDPOINT}/fenix`, data);
 export const getHours = (month, year) =>
   httpClient.get(`${ENDPOINT}`, {
     params: {

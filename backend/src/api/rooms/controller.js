@@ -1,9 +1,9 @@
 const services = require('./services');
 
 module.exports = {
-  getHoursFenix: async (database, roomId) => {
+  getHoursFenix: async (database, roomId, date) => {
     try {
-      let data = await services.getRoomData(roomId);
+      let data = await services.getRoomData(roomId, date);
 
       return data;
     } catch (e) {
