@@ -11,7 +11,7 @@ const api = require('./api');
 
 //enables CORS in dev server
 var corsOptions = {
-  origin: [process.env.URL, "http://dev4.dem.tecnico.ulisboa.pt"],
+  origin: [process.env.URL, "localhost:5000"],
 };
 
 console.log(corsOptions.origin)
