@@ -92,4 +92,53 @@ module.exports = {
       return e.code;
     }
   },
+  getOffDays: async (database) => {
+    try {
+      const [results] = await database.execute(
+      'SELECT * FROM `off_days`'
+      )
+
+      return results;
+    } catch(e) {
+      return e.code;
+    }
+  },
+  setOffDays: async (database, date) => {
+    try {
+      const [data] = await database.execute(
+        'SELECT * FROM `off_days`'
+      )
+
+      if(data.length > 0) {
+        for(const val of data) {
+          if(new Date(val.date).toLocaleDateString() == new Date(date).toLocaleDateString()) {
+            return val;
+          }
+        }
+      }
+
+      await database.execute(
+        'INSERT INTO `off_days` (date) VALUES ( ? )',
+        [date]
+      );
+
+      const [results] = await database.execute(
+        'SELECT * FROM off_days WHERE id=LAST_INSERT_ID()'
+      );
+
+      return results[0];
+    } catch(e) {
+      return e.code;
+    }
+  },
+  deleteOffDay: async (database, id) => {
+    try {
+      const [results] = await database.execute('SELECT * FROM off_days WHERE id=?', [id]);
+      if (results.length === 0) return false;
+      await database.execute('DELETE FROM off_days WHERE id = ?', [id]);
+      return true;
+    } catch (e) {
+      console.error(e);
+    }
+  }
 };

@@ -1,5 +1,11 @@
 const controller = require('./controller');
 
+function date_to_sql(date) {
+  const d = new Date(date);
+
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+
 module.exports = {
   createEvent: async (req, res) => {
     if (!req.user) {
@@ -157,6 +163,71 @@ module.exports = {
       res.sendStatus(400);
     }
   },
-  setOffDay: async (req, res) => {},
-  getOffDays: async (req, res) => {},
+  setOffDay: async (req, res) => {
+    if (!req.user) {
+      res.sendStatus(401);
+      return;
+    }
+
+    if (req.body && req.body.date !== null) {
+      const data = await controller.setOffDays(
+        req.db,
+        date_to_sql(req.body.date)
+      );
+
+      if (!data) {
+        res.sendStatus(404);
+        return;
+      }
+      const response = {
+        date: data.date,
+        id: data.id
+      };
+
+      res.json(response);
+      return;
+    }
+    res.sendStatus(400);
+  },
+  getOffDays: async (req, res) => {
+    if (!req.user) {
+      res.sendStatus(401);
+      return;
+    }
+
+    const data = await controller.getOffDays(req.db);
+
+    if (data.length === 0) {
+      res.json([]);
+    } else if (data.length > 0) {
+      const response = data.map((val) => ({
+        date: val.date,
+        id: val.id
+      }));
+      res.json(response);
+      return;
+    } else {
+      res.sendStatus(400);
+    }
+  },
+  deleteOffDay: async (req, res) => {
+    if (!req.user) {
+      res.sendStatus(401);
+      return;
+    }
+
+    try {
+      const conf = await controller.deleteOffDay(req.db, req.params.id);
+      if (conf) {
+        res.sendStatus(204);
+        return;
+      } else {
+        res.sendStatus(404);
+        return;
+      }
+    } catch (e) {
+      res.sendStatus(400);
+      return;
+    }
+  }
 };

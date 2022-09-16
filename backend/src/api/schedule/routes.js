@@ -6,6 +6,9 @@ const {
   deleteEvents,
   getUserTargets,
   setUserTarget,
+  getOffDays,
+  setOffDay,
+  deleteOffDay,
 } = require('./index');
 
 module.exports = {
@@ -16,5 +19,8 @@ module.exports = {
     app.delete('/schedule/:id', asyncHandler(deleteEvents));
     app.post('/schedule/targets', asyncHandler(setUserTarget));
     app.get('/schedule/targets', asyncHandler(getUserTargets));
+    app.get('/schedule/off_days', asyncHandler(getOffDays));
+    app.post('/schedule/off_days', asyncHandler(setOffDay));
+    app.delete('/schedule/off_days/:id', asyncHandler(deleteOffDay));
   },
 };
