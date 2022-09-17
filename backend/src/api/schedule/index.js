@@ -3,7 +3,7 @@ const controller = require('./controller');
 function date_to_sql(date) {
   const d = new Date(date);
 
-  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
 module.exports = {
