@@ -555,7 +555,7 @@ export default {
     },
     toTimestamp(date) {
       return `${date.getFullYear()}-${
-        date.getMonth() + 1
+        date.getMonth()
       }-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
     },
     setToday() {
