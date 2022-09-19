@@ -4,10 +4,10 @@ const { getHoursFenix } = require('./index');
 
 module.exports = {
   init: (app) => {
-    app.post('/room-hours/fenix', asyncHandler(getHoursFenix));
-    app.get('/room-hours', asyncHandler(getHours));
-    app.post('/room-hours', asyncHandler(addHours));
-    app.delete('/room-hours/:id', asyncHandler(deleteHours));
-    app.put('/room-hours/:id', asyncHandler(updateHours));
+    app.post('/api/room-hours/fenix', asyncHandler(getHoursFenix));
+    app.get('/api/room-hours', asyncHandler(getHours));
+    app.post('/api/room-hours', asyncHandler(addHours));
+    app.delete('/api/room-hours/:id', asyncHandler(deleteHours));
+    app.put('/api/room-hours/:id', asyncHandler(updateHours));
   },
 };

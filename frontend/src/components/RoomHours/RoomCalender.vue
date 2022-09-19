@@ -723,12 +723,18 @@ export default {
     async pushEventsFenix() {
       const events = [];
       let date;
-      if(this.focus) {
-        date = new Intl.DateTimeFormat('pt-PT',{month:'2-digit',day:'2-digit', year:'numeric'}).format(new Date(this.focus));
-      } else {
-        date = new Intl.DateTimeFormat('pt-PT',{month:'2-digit',day:'2-digit', year:'numeric'}).format(new Date());
+
+      let curDate = this.focus ? new Date(this.focus) : new Date();
+
+      if(curDate.getDay() == 0 || (curDate.getDay() == 6)) {
+        curDate.setDate(curDate.getDate() + 2);
       }
 
+      if(this.focus) {
+        date = new Intl.DateTimeFormat('pt-PT',{month:'2-digit',day:'2-digit', year:'numeric'}).format(curDate);
+      } else {
+        date = new Intl.DateTimeFormat('pt-PT',{month:'2-digit',day:'2-digit', year:'numeric'}).format(curDate);
+      }
 
       const data = (await getHoursFenix({date})).data;
 

@@ -13,14 +13,14 @@ const {
 
 module.exports = {
   init: (app) => {
-    app.get('/schedule', asyncHandler(getEvents));
-    app.post('/schedule', asyncHandler(createEvent));
-    app.put('/schedule/:id', asyncHandler(editEvent));
-    app.delete('/schedule/:id', asyncHandler(deleteEvents));
-    app.post('/schedule/targets', asyncHandler(setUserTarget));
-    app.get('/schedule/targets', asyncHandler(getUserTargets));
-    app.get('/schedule/off_days', asyncHandler(getOffDays));
-    app.post('/schedule/off_days', asyncHandler(setOffDay));
-    app.delete('/schedule/off_days/:id', asyncHandler(deleteOffDay));
+    app.get('/api/schedule', asyncHandler(getEvents));
+    app.post('/api/schedule', asyncHandler(createEvent));
+    app.put('/api/schedule/:id', asyncHandler(editEvent));
+    app.delete('/api/schedule/:id', asyncHandler(deleteEvents));
+    app.post('/api/schedule/targets', asyncHandler(setUserTarget));
+    app.get('/api/schedule/targets', asyncHandler(getUserTargets));
+    app.get('/api/schedule/off_days', asyncHandler(getOffDays));
+    app.post('/api/schedule/off_days', asyncHandler(setOffDay));
+    app.delete('/api/schedule/off_days/:id', asyncHandler(deleteOffDay));
   },
 };

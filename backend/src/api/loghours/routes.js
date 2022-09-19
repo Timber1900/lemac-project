@@ -11,12 +11,12 @@ const {
 
 module.exports = {
   init: (app) => {
-    app.post('/loghours', asyncHandler(addHours));
-    app.get('/loghours', asyncHandler(getHours));
-    app.get('/loghours/self', asyncHandler(getIndividualHours));
-    app.put('/loghours/:id', asyncHandler(updateHours));
-    app.delete('/loghours/:id', asyncHandler(deleteHours));
-    app.get('/loghours/sum', asyncHandler(getSum));
-    app.get('/loghours/lastEntry', asyncHandler(lastEntry));
+    app.post('/api/loghours', asyncHandler(addHours));
+    app.get('/api/loghours', asyncHandler(getHours));
+    app.get('/api/loghours/self', asyncHandler(getIndividualHours));
+    app.put('/api/loghours/:id', asyncHandler(updateHours));
+    app.delete('/api/loghours/:id', asyncHandler(deleteHours));
+    app.get('/api/loghours/sum', asyncHandler(getSum));
+    app.get('/api/loghours/lastEntry', asyncHandler(lastEntry));
   },
 };

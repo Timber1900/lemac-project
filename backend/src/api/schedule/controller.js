@@ -95,11 +95,11 @@ module.exports = {
   getOffDays: async (database) => {
     try {
       const [results] = await database.execute(
-      'SELECT * FROM `off_days`'
+        'SELECT * FROM `off_days`'
       )
 
       return results;
-    } catch(e) {
+    } catch (e) {
       return e.code;
     }
   },
@@ -109,9 +109,9 @@ module.exports = {
         'SELECT * FROM `off_days`'
       )
 
-      if(data.length > 0) {
-        for(const val of data) {
-          if(new Date(val.date).toLocaleDateString() == new Date(date).toLocaleDateString()) {
+      if (data.length > 0) {
+        for (const val of data) {
+          if (new Date(val.date).toLocaleDateString() == new Date(date).toLocaleDateString()) {
             return val;
           }
         }
@@ -127,7 +127,7 @@ module.exports = {
       );
 
       return results[0];
-    } catch(e) {
+    } catch (e) {
       return e.code;
     }
   },
