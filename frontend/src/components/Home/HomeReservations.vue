@@ -104,21 +104,13 @@
               <p>
                 Entry:
                 {{
-                  new Date(selectedEvent.details.entry).toLocaleString(undefined, {
-                    dateStyle: 'long',
-                    timeStyle: 'short',
-                    timeZone: 'UTC',
-                  })
+                  formatTime(selectedEvent.details.entry)
                 }}
               </p>
               <p>
                 Exit:
                 {{
-                  new Date(selectedEvent.details.exit).toLocaleString(undefined, {
-                    dateStyle: 'long',
-                    timeStyle: 'short',
-                    timeZone: 'UTC',
-                  })
+                  formatTime(selectedEvent.details.exit)
                 }}
               </p>
               <p v-if="typeof selectedEvent.details.id !== 'number'">Description: {{ selectedEvent.details.description }}</p>
@@ -138,6 +130,7 @@
     getHours,
   } from '@/api/room_hours.api';
   import { getEvents } from '@/api/room_events.api';
+  import moment from 'moment';
 
 
   export default {
@@ -239,23 +232,23 @@
       nativeEvent.stopPropagation();
     },
 
-      async updateRange({ start, end }) {
-        this.$loading.show();
+    async updateRange({ start, end }) {
+      this.$loading.show();
 
-        await this.pushEventsFenix();
+      await this.pushEventsFenix();
 
-        if (!this.requested.includes('' + start.month + start.year)) {
-          await this.pushEvents(start.month, start.year);
-          this.requested.push('' + start.month + start.year);
-        }
-        if (!this.requested.includes('' + end.month + end.year)) {
-          await this.pushEvents(end.month, end.year);
-          this.requested.push('' + end.month + end.year);
-        }
-        this.$loading.hide();
-      },
+      if (!this.requested.includes('' + start.month + start.year)) {
+        await this.pushEvents(start.month, start.year);
+        this.requested.push('' + start.month + start.year);
+      }
+      if (!this.requested.includes('' + end.month + end.year)) {
+        await this.pushEvents(end.month, end.year);
+        this.requested.push('' + end.month + end.year);
+      }
+      this.$loading.hide();
+    },
 
-      async pushEvents(month, year) {
+    async pushEvents(month, year) {
       const date = new Date();
       const dates = [];
       date.setDate(date.getDate() - date.getDay());
@@ -274,8 +267,8 @@
 
         events.push({
           name: event.title,
-          start: new Date(event.entry),
-          end: new Date(event.exit),
+          start: moment(event.entry).utcOffset("+0000").format("YYYY-MM-DD HH:mm"),
+          end: moment(event.exit).utcOffset("+0000").format("YYYY-MM-DD HH:mm"),
           color: this.colors[event.room],
           timed: true,
           id: event.id,
@@ -308,8 +301,8 @@
         if (!this.events.find((el) => el.id === event.id)) {
           events.push({
             name: event.title,
-            start: new Date(event.entry),
-            end: new Date(event.exit),
+            start: moment(event.entry).format("YYYY-MM-DD HH:mm"),
+            end: moment(event.exit).format("YYYY-MM-DD HH:mm"),
             color: this.colors[event.room],
             timed: true,
             id: event.id,
@@ -321,6 +314,10 @@
 
       this.events = events.concat(this.events);
     },
+
+    formatTime(time) {
+      return moment(time).utcOffset("+0000").format("HH:mm");
+    }
     },
   };
   </script>

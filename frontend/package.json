@@ -13,6 +13,7 @@
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "file-saver": "^2.0.5",
+    "moment": "^2.29.4",
     "tailwindcss": "^3.1.8",
     "vue": "^2.6.11",
     "vue-ics": "^0.1.4",

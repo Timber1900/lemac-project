@@ -43,11 +43,21 @@
           :events="events"
           :event-color="getEventColor"
           :type="type"
+          interval-count="14"
+          first-interval="8"
           @click:event="showEvent"
           @click:more="viewDay"
           @click:date="viewDay"
           @change="updateRange"
-        ></v-calendar>
+        >
+          <template #interval="{ weekday, hour, date }">
+              <div
+                v-if="hour < 9 || hour >= 21"
+                style="height: 100%; width: 100%; background-color: #f2f2f2"
+              ></div>
+              <div v-else style="height: 100%; width: 100%"></div>
+          </template>
+        </v-calendar>
         <v-menu
           v-model="selectedOpen"
           :close-on-content-click="false"
@@ -97,6 +107,8 @@
 
 <script>
 import { getHours } from '@/api/hours.api';
+import moment from 'moment';
+
 export default {
   data: () => ({
     focus: '',
@@ -169,8 +181,8 @@ export default {
       for (let i = 0; i < allHours.length; i++) {
         events.push({
           name: allHours[i].user.name.split(' ')[0],
-          start: new Date(allHours[i].entry),
-          end: new Date(allHours[i].exit),
+          start: moment(allHours[i].entry).utcOffset('+0000').format("YYYY-MM-DD HH:mm"),
+          end: moment(allHours[i].exit).utcOffset('+0000').format("YYYY-MM-DD HH:mm"),
           color: this.colors[this.rnd(0, this.colors.length - 1)],
           timed: true,
           details: allHours[i],

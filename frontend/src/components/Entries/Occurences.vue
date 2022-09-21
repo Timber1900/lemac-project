@@ -10,6 +10,8 @@
 
 <script>
 import { getEntries } from '@/api/entries.api';
+import moment from 'moment';
+
 export default {
   data() {
     return {
@@ -42,21 +44,21 @@ export default {
       const {data} = await getEntries();
 
       for (const value of data) {
-        const entry = new Date(value.createdAt);
-        const exit = new Date(entry.getTime());
+        const entry = moment(value.createdAt).utcOffset("+0000");
+        const exit = moment(value.createdAt).utcOffset("+0000");
+
         if(value.closedAt) {
-          exit.setHours(value.closedAt.split(":")[0])
-          exit.setMinutes(value.closedAt.split(":")[1])
-          exit.setSeconds(value.closedAt.split(":")[2])
+          const times = value.closedAt.split(":");
+          exit.set({hour: times[0], minutes: times[1], seconds: times[2]});
         }
 
         this.data = [...this.data, {
-          date: entry.toLocaleDateString(),
-          entry: entry.toLocaleTimeString(),
+          date: entry.format("DD/MM/YYYY"),
+          entry: entry.format("HH:mm:SS"),
           stuId: value.istId,
           computer: value.workstation.name,
-          exit: value.closedAt ? exit.toLocaleTimeString() : '-',
-          spent: value.closedAt ? new Date((exit - entry)).toISOString().substring(11,19): '-'
+          exit: value.closedAt ? exit.format("HH:mm:SS") : '-',
+          spent: value.closedAt ? moment((exit.valueOf() - entry.valueOf())).utcOffset("+0000").format("HH:mm:SS"): '-'
         }]
       }
 

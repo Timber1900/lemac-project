@@ -281,21 +281,13 @@
               <p>
                 Entry:
                 {{
-                  new Date(selectedEvent.details.entry).toLocaleString(undefined, {
-                    dateStyle: 'long',
-                    timeStyle: 'short',
-                    timeZone: 'UTC',
-                  })
+                  formatTime(selectedEvent.details.entry)
                 }}
               </p>
               <p>
                 Exit:
                 {{
-                  new Date(selectedEvent.details.exit).toLocaleString(undefined, {
-                    dateStyle: 'long',
-                    timeStyle: 'short',
-                    timeZone: 'UTC',
-                  })
+                  formatTime(selectedEvent.details.exit)
                 }}
               </p>
               <span v-if="typeof selectedEvent.details.id === 'number'">
@@ -519,6 +511,7 @@ import {
   updateHours,
 } from '@/api/room_hours.api';
 import { createEvent, getEvents } from '@/api/room_events.api';
+import moment from 'moment';
 
 export default {
   data: () => ({
@@ -670,8 +663,8 @@ export default {
 
         events.push({
           name: event.title,
-          start: new Date(event.entry),
-          end: new Date(event.exit),
+          start: moment(event.entry).utcOffset("+0000").format("YYYY-MM-DD HH:mm"),
+          end: moment(event.exit).utcOffset("+0000").format("YYYY-MM-DD HH:mm"),
           color: this.colors[event.room],
           timed: true,
           id: event.id,
@@ -693,8 +686,8 @@ export default {
           found = true;
           return {
             name: event.title,
-            start: new Date(event.entry),
-            end: new Date(event.exit),
+            start: moment(event.entry).utcOffset("+0000").format("YYYY-MM-DD HH:mm"),
+            end: moment(event.exit).utcOffset("+0000").format("YYYY-MM-DD HH:mm"),
             color: this.colors[event.room],
             timed: true,
             id: event.id,
@@ -709,8 +702,8 @@ export default {
       if (!found) {
         let ev = {
           name: event.title,
-          start: new Date(event.entry),
-          end: new Date(event.exit),
+          start: moment(event.entry).utcOffset("+0000").format("YYYY-MM-DD HH:mm"),
+          end: moment(event.exit).utcOffset("+0000").format("YYYY-MM-DD HH:mm"),
           color: this.colors[event.room],
           timed: true,
           id: event.id,
@@ -742,8 +735,8 @@ export default {
         if (!this.events.find((el) => el.id === event.id)) {
           events.push({
             name: event.title,
-            start: new Date(event.entry),
-            end: new Date(event.exit),
+            start: moment(event.entry).format("YYYY-MM-DD HH:mm"),
+            end: moment(event.exit).format("YYYY-MM-DD HH:mm"),
             color: this.colors[event.room],
             timed: true,
             id: event.id,
@@ -889,6 +882,10 @@ export default {
         this.selectedOpen = false;
       }
     },
+
+    formatTime(time) {
+      return moment(time).utcOffset("+0000").format("HH:mm");
+    }
   },
 };
 </script>

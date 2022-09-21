@@ -219,6 +219,7 @@ import {
 import Vue from 'vue';
 import ICS from 'vue-ics';
 import { saveAs } from 'file-saver';
+import moment from 'moment';
 
 export default {
   data: () => ({
@@ -300,12 +301,14 @@ export default {
     events = events.map((val) => {
       let user = this.users.find((user) => user.id == val.userId);
       if (!user) user = this.inactive_users.find((user) => user.id == val.userId);
+
       return {
         name: user.name,
-        start: this.toTimestamp(new Date(val.entry)),
-        end: this.toTimestamp(new Date(val.exit)),
+        start: this.toTimestamp(val.entry),
+        end: this.toTimestamp(val.exit),
         color: this.colors[user.id],
         details: val,
+        timed: true,
       };
     });
 
@@ -314,9 +317,9 @@ export default {
     const refresh = () => {
       if (this.cal) {
         const now = this.cal.times.now;
-        const nowDate = new Date();
-        now.hour = nowDate.getHours() + 1;
-        now.minute = nowDate.getMinutes();
+        const nowDate = moment();
+        now.hour = nowDate.utcOffset("+0100").hour();
+        now.minute = nowDate.minute();
         this.nowY = this.cal.timeToY(this.cal.times.now) + 'px';
 
 
@@ -330,13 +333,12 @@ export default {
   },
   methods: {
     formatTime(start, end) {
-      const startDate = new Date(start);
-      const endDate = new Date(end);
+      const startDate = moment(start).utcOffset("+0000");
+      const endDate = moment(end).utcOffset("+0000");
 
-      return `${startDate.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      })} - ${endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+
+      return `${startDate.format("HH:mm")} - ${endDate.format("HH:mm")}`;
     },
     startDrag(e) {
       if (e.event && e.timed) {
@@ -350,13 +352,15 @@ export default {
     async startTime(e) {
       if (!this.switchValue) return;
       const mouse = this.toDate(e);
+      const start = moment(mouse.getTime());
+
       if (
-        mouse.getHours() < 9 ||
-        mouse.getHours() > 21 ||
-        (mouse.getHours() == 21 && mouse.getMinutes() != 0) ||
-        mouse.getDay() == 0 ||
-        mouse.getDay() == 6 ||
-        this.testDate(mouse)
+        start.hours() < 9 ||
+        start.hours() > 21 ||
+        (start.hours() == 21 && start.minutes() != 0) ||
+        start.day() == 0 ||
+        start.day() == 6 ||
+        this.testDate(start)
       )
         return;
       if (this.dragEvent && this.dragTime === null) {
@@ -366,10 +370,12 @@ export default {
         this.createStart = this.roundTime(mouse.getTime());
         this.createEvent = {
           name: this.active_user ? this.active_user.name : 'Unkown',
-          start: this.toTimestamp(new Date(this.createStart)),
-          end: this.toTimestamp(new Date(this.createStart)),
+          start: moment(this.createStart).format("YYYY-MM-DD HH:mm"),
+          end: moment(this.createStart).format("YYYY-MM-DD HH:mm"),
           color: this.colors[this.active_user.id],
           details: { userId: this.active_user.id },
+          timed: true,
+
         };
         this.events.push(this.createEvent);
       }
@@ -390,50 +396,52 @@ export default {
         const mouse = this.toDate(e);
 
         const newStartTime = mouse.getTime() - this.dragTime;
-        let newStart = new Date(this.roundTime(newStartTime));
-        let newEnd = new Date(newStart.getTime() + duration);
+        let newStart = this.roundTime(newStartTime);
+        let newEnd = newStart + duration;
 
-        if (newStart.getHours() < 9) {
-          newStart.setHours(9, 0);
-          newEnd = new Date(newStart.getTime() + duration);
+        newStart = moment(newStart);
+        newEnd = moment(newEnd);
+
+        if (newStart.hours() < 9) {
+          newStart.set({hour: 9, minute: 0});
+          newEnd = moment(newStart.valueOf() + duration);
         }
 
-        if (newEnd.getHours() > 21 || (newEnd.getHours() == 21 && newEnd.getMinutes() != 0)) {
-          newEnd.setHours(21, 0);
-          newStart = new Date(newEnd.getTime() - duration);
-        }
-        if (newEnd.getDay() != newStart.getDay()) {
-          newEnd.setHours(21, 0);
-          newEnd.setDate(newStart.getDate());
-          newStart = new Date(newEnd.getTime() - duration);
+        if (newEnd.hours() > 21 || (newEnd.hours() == 21 && newEnd.minutes() != 0)) {
+          newEnd.set({hour: 21, minute: 0});
+          newStart = moment(newEnd.valueOf() - duration);
         }
 
-        if (newStart.getDay() == 0 || newStart.getDay() == 6 || this.testDate(newStart)) {
+        if (newEnd.day() != newStart.day()) {
+          newEnd.set({hour: 21, minute: 0, date: newStart.date()});
+          newStart = moment(newEnd.valueOf() - duration);
+        }
+
+        if (newStart.day() == 0 || newStart.day() == 6 || this.testDate(newStart)) {
           return;
         }
 
-        this.dragEvent.start = this.toTimestamp(newStart);
-        this.dragEvent.end = this.toTimestamp(newEnd);
+        this.dragEvent.start = newStart.format("YYYY-MM-DD HH:mm");
+        this.dragEvent.end = newEnd.format("YYYY-MM-DD HH:mm");
       } else if (this.createEvent && this.createStart !== null) {
         const mouse = this.toDate(e).getTime();
         const mouseRounded = this.roundTime(mouse, false);
         const min = Math.min(mouseRounded, this.createStart);
         const max = Math.max(mouseRounded, this.createStart);
 
-        let startDate = new Date(min);
-        if (startDate.getHours() < 9) {
-          startDate.setHours(9, 0);
+        let startDate = moment(min);
+        if (startDate.hours() < 9) {
+          startDate.set({hour: 9,  minute: 0});
         }
-        this.createEvent.start = this.toTimestamp(startDate);
-        let endDate = new Date(max);
-        if (endDate.getHours() > 21 || (endDate.getHours() == 21 && endDate.getMinutes() != 0)) {
-          endDate.setHours(21, 0);
+        this.createEvent.start = startDate.format("YYYY-MM-DD HH:mm");
+        let endDate = moment(max);
+        if (endDate.hours() > 21 || (endDate.hours() == 21 && endDate.minutes() != 0)) {
+          endDate.set({hour: 21, minute: 0});
         }
-        if (endDate.getDay() != startDate.getDay()) {
-          endDate.setHours(21, 0);
-          endDate.setDate(startDate.getDate());
+        if (endDate.day() != startDate.day()) {
+          endDate.set({hour: 21, minute: 0, date: startDate.date()});
         }
-        this.createEvent.end = this.toTimestamp(endDate);
+        this.createEvent.end = endDate.format("YYYY-MM-DD HH:mm");
       }
     },
     async endDrag() {
@@ -472,10 +480,11 @@ export default {
 
         let updatedEvent = {
           name: user.name,
-          start: this.toTimestamp(new Date(data.entry)),
-          end: this.toTimestamp(new Date(data.exit)),
+          start: this.toTimestamp(data.entry),
+          end: this.toTimestamp(data.exit),
           color: this.colors[user.id],
           details: data,
+          timed: true,
         };
         this.events[index] = updatedEvent;
       }
@@ -554,9 +563,10 @@ export default {
         : new Date(tms.year, tms.month - 1, tms.day, tms.hour, tms.minute);
     },
     toTimestamp(date) {
-      return `${date.getFullYear()}-${
-        date.getMonth()+1
-      }-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+      return moment(date).utcOffset('+0000').format("YYYY-MM-DD HH:mm");
+      //return `${date.getFullYear()}-${
+      //  date.getMonth()+1
+      //}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
     },
     setToday() {
       this.value = '';
@@ -689,8 +699,6 @@ export default {
 
         return curWeek == curWeekLocal;
       });
-
-      console.log(this.targetHoursArray[user.id])
 
       const dataChange = {
         userId: user.id,
