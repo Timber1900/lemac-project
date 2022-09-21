@@ -141,7 +141,7 @@
       </v-sheet>
       <v-sheet class="flex flex-row items-center justify-start py-3">
         <v-btn color="secondary" class="mx-3" @click="downloadCalender">Download</v-btn>
-        <v-dialog v-model="dialogOffset" max-width="650px" transition="dialog-transition">
+        <v-dialog v-if="getPermission === 1" v-model="dialogOffset" max-width="650px" transition="dialog-transition">
             <template #activator="{ on, attrs }">
               <v-btn color="secondary" class="mr-3" v-bind="attrs" v-on="on">Edit targets</v-btn>
             </template>
@@ -179,7 +179,7 @@
               </v-form>
             </v-card>
         </v-dialog>
-        <v-dialog v-model="dialogOffDays" max-width="450px" transition="dialog-transition">
+        <v-dialog v-if="getPermission === 1" v-model="dialogOffDays" max-width="450px" transition="dialog-transition">
             <template #activator="{ on, attrs }">
               <v-btn color="secondary" v-bind="attrs" v-on="on">Edit off days</v-btn>
             </template>
@@ -220,6 +220,7 @@ import Vue from 'vue';
 import ICS from 'vue-ics';
 import { saveAs } from 'file-saver';
 import moment from 'moment';
+import { mapGetters } from 'vuex';
 
 export default {
   data: () => ({
@@ -269,6 +270,7 @@ export default {
     cal() {
       return this.ready ? this.$refs.calendar : null;
     },
+    ...mapGetters('user', ['getPermission']),
   },
   watch: {
     active_user() {

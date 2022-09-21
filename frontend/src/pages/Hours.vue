@@ -33,8 +33,10 @@
 import HourTable from '@/components/Hours/HoursTable.vue';
 import Calendar from '@/components/Hours/Calendar.vue';
 import SumTable from '@/components/Hours/SumTable.vue';
-import { getHoursSelf } from '@/api/hours.api';
+import { getHoursSelf, getHours } from '@/api/hours.api';
 import { mapGetters } from 'vuex';
+import { getUsers } from '@/api/user.api';
+
 export default {
   name: 'Hours',
   components: { HourTable, Calendar, SumTable },
@@ -48,10 +50,13 @@ export default {
   },
   async mounted() {
     this.$loading.show();
-    let response = await getHoursSelf();
+    const users = (await getUsers()).data;
+    const response = this.getPermission === 1 ? await getHours(-1, -1) : await getHoursSelf();
 
-    let data = response.data.map((val) => {
+    const data = response.data.map((val) => {
       val.sold_amount = val.exit_number - val.entry_number;
+      val.user = users.find(user => user.id == val.userId).name;
+
       return val;
     });
 

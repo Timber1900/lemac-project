@@ -129,6 +129,19 @@
                       :rules="[() => !!editedItem.safe_amount || 'This field is required']"
                     ></v-text-field>
                   </v-row>
+                  <v-row v-if="getPermission === 1">
+                    <v-autocomplete
+                      v-model="active_user"
+                      label="Workstation"
+                      :items="users"
+                      item-text="name"
+                      item-value="id"
+                      :rules="[(v) => !!v || 'Workstation is required']"
+                      required
+                      filled
+                    ></v-autocomplete>
+                  </v-row>
+
                 </v-container>
               </v-card-text>
               <v-card-actions>
@@ -188,6 +201,8 @@
 
 <script>
 import { createHours, deleteHours, updateHours, getLastEntry } from '@/api/hours.api';
+import { getUsers } from '@/api/user.api';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'HourTable',
@@ -214,7 +229,10 @@ export default {
     dialog: false,
     dialogDelete: false,
     hours: [],
+    users: [],
+    active_user: '',
     headers: [
+      { text: 'Monitor', value: 'user', sortable: false},
       { text: 'Entry Hour', value: 'entry', sortable: false },
       { text: 'Exit Hour', value: 'exit', sortable: false },
       { text: 'Total Time', value: 'time', sortable: false },
@@ -245,11 +263,11 @@ export default {
     },
     day: '',
   }),
-
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? 'New Hour Entry' : 'Edit Hour Entry';
     },
+    ...mapGetters('user', ['getPermission']),
   },
 
   watch: {
@@ -268,8 +286,11 @@ export default {
     },
   },
 
-  mounted() {
+  async mounted() {
     this.hours = this.propHours;
+    this.users = (await getUsers()).data;
+    this.active_user = this.users.find((val) => val.current);
+
   },
   methods: {
     editItem(item) {
@@ -293,6 +314,7 @@ export default {
         sold_amount: item.sold_amount,
       };
       this.day = item.entry.slice(0, 11);
+      this.active_user = this.users.find(user => user.id == item.userId);
       this.dialog = true;
     },
 
@@ -345,8 +367,13 @@ export default {
           if (!this.editedItem.exit_number) {
             this.editedItem.exit_number = null;
           }
+
+          this.editedItem.userId = this.active_user;
+
           const response = await updateHours(this.hours[this.editedIndex].id, this.editedItem);
+
           response.data.sold_amount = (response.data.exit_number ?? 0) - response.data.entry_number;
+          response.data.user = this.users.find(user => user.id == response.data.userId).name;
 
           this.hours.splice(this.editedIndex, 1, response.data);
           this.$notify({
@@ -362,8 +389,11 @@ export default {
             this.editedItem.exit_number = null;
           }
 
+
           const response = await createHours(this.editedItem);
+
           response.data.sold_amount = response.data.exit_number - response.data.entry_number;
+          response.data.user = this.users.find(user => user.id == response.data.userId).name;
 
           this.hours.push(response.data);
           this.$notify({

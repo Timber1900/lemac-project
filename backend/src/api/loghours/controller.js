@@ -36,12 +36,17 @@ module.exports = {
   },
   getHours: async (database, month, year) => {
     try {
-      const [
-        results,
-      ] = await database.execute(
-        'SELECT l.*, u.name FROM log_hours l LEFT JOIN users u USING (user_id) WHERE YEAR(l.entry)=? AND MONTH(l.entry)=?',
-        [year, month]
-      );
+      let results;
+      if(month == -1) {
+        [results] = await database.execute(
+          'SELECT l.*, u.name FROM log_hours l LEFT JOIN users u USING (user_id)',
+        );
+      }  else {
+        [results] = await database.execute(
+          'SELECT l.*, u.name FROM log_hours l LEFT JOIN users u USING (user_id) WHERE YEAR(l.entry)=? AND MONTH(l.entry)=?',
+          [year, month]
+        );
+      }
       return results;
     } catch (e) {
       console.error(e);
@@ -60,9 +65,9 @@ module.exports = {
   updateHours: async (database, hours, id, userId, entry_number, exit_number, safe_amount) => {
     try {
       const [check] = await database.execute('SELECT * FROM log_hours WHERE id=?', [id]);
-      if (check.length === 0 || userId !== check[0].user_id) return false;
+      if (check.length === 0) return false;
       await database.execute(
-        'UPDATE log_hours SET entry = ?, `exit` = ?, time = ?, entry_number = ?, exit_number = ?, safe_amount = ? WHERE id = ?',
+        'UPDATE log_hours SET entry = ?, `exit` = ?, time = ?, entry_number = ?, exit_number = ?, safe_amount = ?, user_id = ? WHERE id = ?',
         [
           hours.entry,
           hours.exit,
@@ -70,6 +75,7 @@ module.exports = {
           entry_number,
           exit_number,
           safe_amount,
+          userId,
           id,
         ]
       );

@@ -92,7 +92,8 @@ module.exports = {
       req.body.entry &&
       req.body.exit &&
       req.body.entry_number != null &&
-      req.body.safe_amount != null
+      req.body.safe_amount != null &&
+      req.body.userId
     ) {
       const body = {
         entry: timeJs2SQL(req.body.entry),
@@ -103,7 +104,7 @@ module.exports = {
         req.db,
         body,
         req.params.id,
-        req.user.id,
+        req.body.userId,
         req.body.entry_number,
         req.body.exit_number,
         req.body.safe_amount

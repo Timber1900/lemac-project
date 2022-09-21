@@ -56,6 +56,8 @@ export default {
       localStorage.removeItem('token');
       this.logoutUser();
       this.loadingOut = false;
+      window.open('https://fenix.tecnico.ulisboa.pt/logout', '_blank').focus();
+
     },
     ...mapActions('user', ['loginUser', 'logoutUser']),
   },

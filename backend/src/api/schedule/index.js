@@ -34,7 +34,7 @@ module.exports = {
     res.sendStatus(400);
   },
   getEvents: async (req, res) => {
-    if (!req.user || !req.user.admin) {
+    if (!req.user) {
       res.sendStatus(401);
       return;
     }
@@ -107,7 +107,7 @@ module.exports = {
     }
   },
   setUserTarget: async (req, res) => {
-    if (!req.user) {
+    if (!req.user || !req.user.admin) {
       res.sendStatus(401);
       return;
     }
@@ -164,7 +164,7 @@ module.exports = {
     }
   },
   setOffDay: async (req, res) => {
-    if (!req.user) {
+    if (!req.user || !req.user.admin) {
       res.sendStatus(401);
       return;
     }
@@ -211,7 +211,7 @@ module.exports = {
     }
   },
   deleteOffDay: async (req, res) => {
-    if (!req.user) {
+    if (!req.user || !req.user.admin) {
       res.sendStatus(401);
       return;
     }

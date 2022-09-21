@@ -52,8 +52,8 @@
     </v-toolbar>
     <v-list>
       <template v-if="entries.length > 0">
-        <template v-for="(entry, index) in entries">
-          <v-list-item :key="entry.id" >
+        <div v-for="(entry, index) in entries" :key="entry.id">
+          <v-list-item>
             <v-list-item-content>
               <v-list-item-title class="mb-2">
                 <v-chip color="secondary">
@@ -64,6 +64,8 @@
                 <v-icon left right small>mdi-desktop-classic</v-icon> {{ entry.workstation.name }}
                 <v-icon left right small>mdi-clock</v-icon>
                 {{ new Date(entry.createdAt).toLocaleString('pt-PT') }}
+                <v-icon left right small>mdi-text</v-icon>
+                {{entry.observations}}
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
@@ -100,7 +102,7 @@
             </v-list-item-action>
           </v-list-item>
           <v-divider v-if="index < entries.length - 1" :key="index"></v-divider>
-        </template>
+        </div>
       </template>
       <!-- template for empty list -->
       <template v-else>

@@ -48,7 +48,8 @@ module.exports = {
       res.sendStatus(401);
       return;
     }
-    if (req.body && req.body.active == 1 && req.body.observations) {
+
+    if (req.body && req.body.active == 1 && req.body.observations !== null) {
       const data = await controller.updateEntrieObservation(
         req.db,
         req.params.id,

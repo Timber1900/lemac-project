@@ -123,7 +123,6 @@ export default {
   },
   async mounted() {
     const lastEntry = (await getLastEntry()).data;
-    console.log(lastEntry);
 
     this.entryNumber = lastEntry.exit_number;
     this.safeAmount = lastEntry.safe_amount;

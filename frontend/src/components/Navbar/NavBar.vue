@@ -101,7 +101,6 @@ export default {
           text: 'Room Management',
           icon: 'mdi-table-chair',
           link: '/rooms',
-          permission: 1,
         },
       ],
     };
@@ -123,6 +122,7 @@ export default {
       localStorage.removeItem('token');
       this.logoutUser();
       this.$router.push('/');
+      window.open('https://fenix.tecnico.ulisboa.pt/logout', '_blank').focus();
     },
 
     ...mapActions('user', ['logoutUser']),

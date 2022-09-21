@@ -39,7 +39,7 @@ module.exports = {
         userId: x.user_id,
         roomId: x.room_data_id,
         type: x.type,
-        observations: x.observations,
+        observations: req.user ? x.observations : "",
         created_at: x.created_at,
       }));
       res.json(response);
