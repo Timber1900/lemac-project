@@ -297,7 +297,7 @@ export default {
 
     this.users = (await getUsers()).data;
     this.inactive_users = this.users.filter((val) => !val.active);
-    this.users = this.users.filter((val) => val.active);
+    this.users = this.users.filter((val) => {val.active && val.id != 11});
     this.active_user = this.users.find((val) => val.current);
     let events = (await getHours()).data;
     events = events.map((val) => {

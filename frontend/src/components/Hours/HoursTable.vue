@@ -368,11 +368,13 @@ export default {
             this.editedItem.exit_number = null;
           }
 
-          this.editedItem.userId = this.active_user;
+          this.editedItem.userId = this.active_user.id ?? this.active_user;
 
           const response = await updateHours(this.hours[this.editedIndex].id, this.editedItem);
 
           response.data.sold_amount = (response.data.exit_number ?? 0) - response.data.entry_number;
+          console.log(response.data)
+          console.log(this.users)
           response.data.user = this.users.find(user => user.id == response.data.userId).name;
 
           this.hours.splice(this.editedIndex, 1, response.data);
