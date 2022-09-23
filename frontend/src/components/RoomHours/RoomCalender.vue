@@ -903,7 +903,7 @@ export default {
     },
 
     formatTime(time) {
-      return moment(time).utcOffset("+0000").format("HH:mm");
+      return moment(time).format("HH:mm");
     }
   },
 };
