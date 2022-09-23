@@ -297,7 +297,8 @@ export default {
 
     this.users = (await getUsers()).data;
     this.inactive_users = this.users.filter((val) => !val.active);
-    this.users = this.users.filter((val) => {val.active && val.id != 13});
+    this.users = this.users.filter((val) => val.active && val.id !== 13);
+
     this.active_user = this.users.find((val) => val.current);
     let events = (await getHours()).data;
     events = events.map((val) => {
@@ -335,10 +336,8 @@ export default {
   },
   methods: {
     formatTime(start, end) {
-      const startDate = moment(start).utcOffset("+0000");
-      const endDate = moment(end).utcOffset("+0000");
-
-
+      const startDate = moment(start);
+      const endDate = moment(end);
 
       return `${startDate.format("HH:mm")} - ${endDate.format("HH:mm")}`;
     },
