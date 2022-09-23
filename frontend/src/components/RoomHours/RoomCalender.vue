@@ -259,6 +259,18 @@
                 style="height: 100%; width: 100%; background-color: #f2f2f2"
               ></div>
               <div v-else style="height: 100%; width: 100%"></div>
+            </template>
+          <template #event="{ event, timed }">
+            <div
+              class="v-event-timed-container"
+              style="user-select: none; background-color: inherit; position: relative"
+            >
+              <div class="truncate" style="padding-left: 0.5em; background-color: inherit; color: white">
+                <strong>{{ event.name }}</strong>
+                <br />
+                {{ fTime(event.start, event.end) }}
+              </div>
+            </div>
           </template>
         </v-calendar>
         <v-menu
@@ -586,6 +598,13 @@ export default {
     this.$refs.calendar.checkChange();
   },
   methods: {
+    fTime(start, end) {
+      const startDate = moment(start);
+      const endDate = moment(end);
+
+      return `${startDate.format("HH:mm")} - ${endDate.format("HH:mm")}`;
+    },
+
     viewDay({ date }) {
       this.focus = date;
       this.type = 'day';
