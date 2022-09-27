@@ -296,7 +296,7 @@ export default {
     this.$refs.calendar.checkChange();
 
     this.users = (await getUsers()).data;
-    this.inactive_users = this.users.filter((val) => !val.active);
+    this.inactive_users = this.users.filter((val) => !val.active || val.id === 13);
     this.users = this.users.filter((val) => val.active && val.id !== 13);
 
     this.active_user = this.users.find((val) => val.current);
