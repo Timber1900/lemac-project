@@ -15,6 +15,7 @@ import Schedule from '@/pages/Schedule.vue';
 import About from '@/pages/About.vue';
 import Reservations from '@/pages/Reservations.vue';
 
+
 Vue.use(VueRouter);
 
 const routes = [

@@ -49,11 +49,14 @@ module.exports = {
       return;
     }
 
-    if (req.body && req.body.active == 1 && req.body.observations !== null) {
+    if (req.body && req.body.active == 1) {
+      console.log(req.body);
       const data = await controller.updateEntrieObservation(
         req.db,
         req.params.id,
-        req.body.observations
+        req.body.observations,
+        req.body.workstationId,
+        req.body.istId
       ); //with observation
       if (!data) {
         res.sendStatus(404);

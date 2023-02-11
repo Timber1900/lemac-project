@@ -16,11 +16,13 @@ module.exports = {
       return;
     }
   },
-  updateEntrieObservation: async (database, entrieId, observation) => {
+  updateEntrieObservation: async (database, entrieId, observation, worksationId, istId) => {
     //update observation only
     try {
-      await database.execute('UPDATE entries SET observations = ? WHERE id = ?', [
+      await database.execute('UPDATE entries SET observations = ?, workstation_id = ?, ist_id = ? WHERE id = ?', [
         observation,
+        worksationId,
+        istId,
         entrieId,
       ]);
       const [

@@ -130,18 +130,57 @@
                     ></v-text-field>
                   </v-row>
                   <v-row v-if="getPermission === 1">
+                    <v-menu
+                      ref="menu4"
+                      v-model="menu4"
+                      :close-on-content-click="false"
+                      :close-on-click="false"
+                      :nudge-right="40"
+                      :return-value.sync="adminDate"
+                      transition="scale-transition"
+                      offset-y
+                    >
+                      <template #activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="adminDate"
+                          label="Date for entry (OPCIONAL)"
+                          prepend-icon="mdi-calendar"
+                          readonly
+                          required
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-if="menu4"
+                        v-model="adminDate"
+                        :landscape="true"
+                        :reactive="true"
+                      >
+                        <v-spacer />
+                        <v-btn text color="success" @click="menu4 = false"> Cancel </v-btn>
+                        <v-btn
+                          text
+                          color="secondary"
+                          @click="$refs.menu4.save(adminDate)"
+                        >
+                          OK
+                        </v-btn>
+                      </v-date-picker>
+                    </v-menu>
+                  </v-row>
+                  <v-row v-if="getPermission === 1">
                     <v-autocomplete
                       v-model="active_user"
-                      label="Workstation"
+                      label="User"
                       :items="users"
                       item-text="name"
                       item-value="id"
-                      :rules="[(v) => !!v || 'Workstation is required']"
+                      :rules="[(v) => !!v || 'User is required']"
                       required
                       filled
                     ></v-autocomplete>
                   </v-row>
-
                 </v-container>
               </v-card-text>
               <v-card-actions>
@@ -262,6 +301,8 @@ export default {
       sold_amount: 0,
     },
     day: '',
+    adminDate: null,
+    menu4: null
   }),
   computed: {
     formTitle() {
@@ -359,9 +400,14 @@ export default {
     async save() {
       // Don't save if validation is unsuccessful
       if (!this.$refs.form.validate()) return;
+      console.log(this.adminDate);
 
       try {
         if (this.editedIndex > -1) {
+          if(this.adminDate) {
+            this.day = `${this.adminDate}T`
+          }
+
           this.editedItem.entry = this.day + this.editedItem.entry + ':000Z';
           this.editedItem.exit = this.day + this.editedItem.exit + ':000Z';
           if (!this.editedItem.exit_number) {
@@ -385,8 +431,9 @@ export default {
           });
         } else {
           const now = new Date().toJSON();
-          this.editedItem.entry = now.slice(0, 11) + this.editedItem.entry + ':000Z';
-          this.editedItem.exit = now.slice(0, 11) + this.editedItem.exit + ':000Z';
+
+          this.editedItem.entry = (this.adminDate ? `${this.adminDate}T` : now.slice(0, 11)) + this.editedItem.entry + ':000Z';
+          this.editedItem.exit = (this.adminDate ? `${this.adminDate}T` : now.slice(0, 11)) + this.editedItem.exit + ':000Z';
           if (!this.editedItem.exit_number) {
             this.editedItem.exit_number = null;
           }

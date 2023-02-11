@@ -492,7 +492,7 @@ export default {
 
       let workedHours = 0;
       const calenderDate = this.value ? new Date(this.value) : new Date();
-      const oneAug = new Date(calenderDate.getFullYear(), 6, 10);
+      const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
       const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
       const curWeek = Math.floor(numberOfDays / (7 * 4));
 
@@ -589,14 +589,14 @@ export default {
     getUserHours(user) {
       const calenderDate = this.value ? new Date(this.value) : new Date();
 
-      const oneAug = new Date(calenderDate.getFullYear(), 6, 10);
+      const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
       const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
       const curWeek = Math.floor(numberOfDays / (7 * 4));
 
       let event_weeks = this.events.map((val) => {
         const calenderDate = new Date(val.start);
 
-        const oneAug = new Date(calenderDate.getFullYear(), 6, 10);
+        const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
         const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
         const curWeek = Math.floor(numberOfDays / (7 * 4));
 
@@ -621,13 +621,13 @@ export default {
     },
     async getTargetHours() {
       const calenderDate = this.value ? new Date(this.value) : new Date();
-      const oneAug = new Date(calenderDate.getFullYear(), 6, 10);
+      const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
       const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
       const curWeek = Math.floor(numberOfDays / (7 * 4));
 
       const off_in_week = this.offDays.filter(val => {
         const calenderDate = new Date(val.date);
-        const oneAug = new Date(calenderDate.getFullYear(), 6, 10);
+        const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
         const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
         const curWeekLocal = Math.floor(numberOfDays / (7 * 4));
 
@@ -658,7 +658,7 @@ export default {
         } else {
           let workedHours = 0;
           const calenderDate = this.value ? new Date(this.value) : new Date();
-          const oneAug = new Date(calenderDate.getFullYear(), 6, 10);
+          const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
           const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
           const curWeek = Math.floor(numberOfDays / (7 * 4));
 
@@ -688,13 +688,13 @@ export default {
     async save(user) {
       const calenderDate = this.value ? new Date(this.value) : new Date();
 
-      const oneAug = new Date(calenderDate.getFullYear(), 6, 10);
+      const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
       const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
       const curWeek = Math.floor(numberOfDays / (7 * 4));
 
       const off_in_week = this.offDays.filter(val => {
         const calenderDate = new Date(val.date);
-        const oneAug = new Date(calenderDate.getFullYear(), 6, 10);
+        const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
         const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
         const curWeekLocal = Math.floor(numberOfDays / (7 * 4));
 
@@ -715,7 +715,7 @@ export default {
     },
     downloadCalender() {
       const calenderDate = this.value ? new Date(this.value) : new Date();
-      const oneAug = new Date(calenderDate.getFullYear(), 6, 10);
+      const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
       const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
       const curWeek = Math.floor(numberOfDays / (7 * 4));
 
@@ -723,7 +723,7 @@ export default {
 
       for (const ev of this.events) {
         const calenderDate = new Date(ev.start);
-        const oneAug = new Date(calenderDate.getFullYear(), 6, 10);
+        const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
         const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
         const eventWeek = Math.floor(numberOfDays / (7 * 4));
 

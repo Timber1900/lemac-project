@@ -7,10 +7,11 @@ const publications = require('./publications/routes');
 const roomhours = require('./rooms/routes');
 const roomevents = require('./room_events/routes');
 const schedule = require('./schedule/routes');
+const entrances = require('./entrances/routes');
 
 module.exports = {
   /*export all routes into the main express file*/
-  init: (app) => {
+  init: (app, ws_server) => {
     auth.init(app);
     users.init(app);
     workstations.init(app);
@@ -20,5 +21,6 @@ module.exports = {
     roomhours.init(app);
     roomevents.init(app);
     schedule.init(app);
+    entrances.init(app, ws_server);
   },
 };

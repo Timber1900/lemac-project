@@ -21,3 +21,7 @@
 .pc-active {
   @apply border bg-[#b7e1cd] border-[#a5a5a5]
 }
+
+.pc-selected {
+  @apply border bg-[#49caf9] border-[#a5a5a5]
+}

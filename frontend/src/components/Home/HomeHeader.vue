@@ -2,20 +2,20 @@
   <v-app-bar app dense>
     <v-row>
     <router-link to="/">
-      <h2 class="primary--text mx-3">LEMAC</h2>
+      <h2 class="mx-3 primary--text">LEMAC</h2>
     </router-link>
     <v-divider vertical></v-divider>
       <router-link to="/about">
         <h2 class="text-black hover:text-[#009de0] transition-colors duration-150 mx-3">About</h2>
       </router-link>
       <router-link to="/reservations">
-        <h2 class="text-black hover:text-[#009de0] transition-colors duration-150">Reservations</h2>
+        <h2 class="text-black hover:text-[#009de0] transition-colors duration-150 mx-3">Reservations</h2>
       </router-link>
     </v-row>
     <v-spacer />
     <div v-if="!getId">
       <v-btn
-        class="primary mx-3"
+        class="mx-3 primary"
         :loading="loading"
         :disabled="loading"
         elevation="2"
@@ -35,7 +35,7 @@
         Admin Dashboard
       </v-tooltip>
       <v-btn
-        class="error mx-3"
+        class="mx-3 error"
         :loading="loadingOut"
         :disabled="loadingOut"
         elevation="2"

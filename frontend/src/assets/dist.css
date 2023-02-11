@@ -739,6 +739,10 @@ video {
   flex-grow: 1;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .grid-cols-18 {
   grid-template-columns: repeat(18, minmax(0, 1fr));
 }
@@ -779,14 +783,6 @@ video {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.overflow-ellipsis {
-  text-overflow: ellipsis;
-}
-
-.text-ellipsis {
-  text-overflow: ellipsis;
 }
 
 .whitespace-pre-wrap {
@@ -961,6 +957,14 @@ video {
   border-color: rgb(165 165 165 / var(--tw-border-opacity));
   --tw-bg-opacity: 1;
   background-color: rgb(183 225 205 / var(--tw-bg-opacity));
+}
+
+.pc-selected {
+  border-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(165 165 165 / var(--tw-border-opacity));
+  --tw-bg-opacity: 1;
+  background-color: rgb(73 202 249 / var(--tw-bg-opacity));
 }
 
 .hover\:text-\[\#009de0\]:hover {

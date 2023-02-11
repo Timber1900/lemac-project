@@ -18,16 +18,18 @@
             <v-card-text>
               <v-row>
                 <v-col cols="6">
-                  <v-text-field
-                    v-model="newItem.istId"
-                    :rules="[(v) => !!v || 'IST Id is required']"
-                    label="Id"
-                    type="number"
-                    required
-                    filled
-                  ></v-text-field>
+                  <div v-for="(number, i) in numberList" :key="i + 'a'">
+                    <v-text-field
+                      v-model="numberList[i]"
+                      :rules="[(v) => !!v || 'IST Id is required']"
+                      label="Id"
+                      type="number"
+                      required
+                      filled
+                    ></v-text-field>
+                  </div>
                 </v-col>
-                <v-col cols="6">
+                <v-col cols="6" class="flex items-center justify-center">
                   <v-autocomplete
                     v-model="newItem.workstationId"
                     label="Workstation"
@@ -43,6 +45,8 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
+              <v-btn color="primary" text @click="add"> Add Number </v-btn>
+              <v-btn color="primary" text @click="remove"> Remove Number </v-btn>
               <v-btn color="primary" text @click="close"> Cancel </v-btn>
               <v-btn color="primary" text @click="save"> Save </v-btn>
             </v-card-actions>
@@ -52,7 +56,7 @@
     </v-toolbar>
     <v-list>
       <template v-if="entries.length > 0">
-        <div v-for="(entry, index) in entries" :key="entry.id">
+        <div v-for="(entry, index) in entries" :key="entry.id + 'b'">
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title class="mb-2">
@@ -70,6 +74,20 @@
             </v-list-item-content>
             <v-list-item-action>
               <div>
+                <v-tooltip bottom open-delay="500">
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      class="primary ma-1"
+                      small
+                      v-bind="attrs"
+                      v-on="on"
+                      @click="editEntry(entry)"
+                    >
+                      <v-icon>mdi-pencil</v-icon>
+                    </v-btn>
+                  </template>
+                  Edit
+                </v-tooltip>
                 <v-tooltip bottom open-delay="500">
                   <template #activator="{ on, attrs }">
                     <v-btn
@@ -101,7 +119,7 @@
               </div>
             </v-list-item-action>
           </v-list-item>
-          <v-divider v-if="index < entries.length - 1" :key="index"></v-divider>
+          <v-divider v-if="index < entries.length - 1" :key="index + 'c'"></v-divider>
         </div>
       </template>
       <!-- template for empty list -->
@@ -143,6 +161,47 @@
         </v-card>
       </v-dialog>
     </v-list>
+
+    <v-dialog v-model="editEntryModal" max-width="550px" v-if="editEntryModal">
+        <v-card>
+          <v-form ref="formAdd" lazy-validation @submit.prevent="save">
+            <v-card-title>
+              <span class="headline"> Edit Registration </span>
+            </v-card-title>
+            <v-card-text>
+              <v-row>
+                <v-col cols="6">
+                  <v-text-field
+                    v-model="editingEntry.number"
+                    :rules="[(v) => !!v || 'IST Id is required']"
+                    label="Id"
+                    type="number"
+                    required
+                    filled
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="6" class="flex items-center justify-center">
+                  <v-autocomplete
+                    v-model="editingEntry.workstationId"
+                    label="Workstation"
+                    :items="workstations"
+                    item-text="name"
+                    item-value="id"
+                    :rules="[(v) => !!v || 'Workstation is required']"
+                    required
+                    filled
+                  ></v-autocomplete>
+                </v-col>
+              </v-row>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" text @click="close"> Cancel </v-btn>
+              <v-btn color="primary" text @click="edit"> Edit </v-btn>
+            </v-card-actions>
+          </v-form>
+        </v-card>
+      </v-dialog>
   </div>
 </template>
 
@@ -153,6 +212,7 @@ export default {
   data() {
     return {
       entries: [],
+      numberList: [null],
       workstations: [],
       editedItem: {
         active: 1,
@@ -166,6 +226,8 @@ export default {
       dialogAdd: false,
       dialogClose: false,
       editedIndex: -1,
+      editEntryModal: false,
+      editingEntry: null
     };
   },
   computed: {
@@ -198,6 +260,7 @@ export default {
     // trigger methods
     addObservation(item) {
       this.editedIndex = this.entries.indexOf(item);
+      this.editedItem = item;
       this.editedItem.observations = item.observations;
       this.dialog = true;
     },
@@ -269,6 +332,7 @@ export default {
     // add entry methods
     close() {
       this.dialogAdd = false;
+      this.editEntryModal = false;
       this.$refs.formAdd.resetValidation();
       this.$nextTick(() => {
         this.newItem = {
@@ -280,20 +344,57 @@ export default {
     async save() {
       if (!this.$refs.formAdd.validate()) return;
       try {
-        const { data } = await addEntry({
-          istId: 'ist1' + this.newItem.istId,
-          workstationId: this.newItem.workstationId,
-        });
-        this.entries.push(data);
+        for(const number of this.numberList) {
+
+          const { data } = await addEntry({
+            istId: 'ist1' + number,
+            workstationId: this.newItem.workstationId,
+          });
+          this.entries.push(data);
+          this.$notify({
+            type: 'success',
+            title: 'Entry created',
+            text: `You have created an entry for workstation ${data.workstation.name}`,
+          });
+        }
+      } finally {
+        this.close();
+        this.numberList = [null];
+      }
+    },
+    async edit() {
+      if (!this.$refs.formAdd.validate()) return;
+      try {
+        this.editingEntry.istId = `ist1${this.editingEntry.number}`;
+
+        const { data } = await updateEntry(this.editingEntry.id, this.editingEntry);
+        this.entries.splice(this.editedIndex, 1, data);
         this.$notify({
           type: 'success',
-          title: 'Entry created',
-          text: `You have created an entry for workstation ${data.workstation.name}`,
+          title: 'Entry updated',
+          text: `You have updated an entry for workstation ${data.workstation.name}`,
         });
       } finally {
         this.close();
+        this.numberList = [null];
       }
     },
+    add() {
+      this.numberList = [...this.numberList, null];
+    },
+    remove() {
+      let temp = this.numberList;
+      temp.pop();
+      this.numberList = temp;
+    },
+    async editEntry(entry) {
+      await this.loadWorkstations();
+      this.editedIndex = this.entries.indexOf(entry);
+
+      this.editEntryModal = true;
+      this.editingEntry = entry;
+      this.editingEntry.number = this.editingEntry.istId.split("ist1")[1];
+    }
   },
 };
 </script>
