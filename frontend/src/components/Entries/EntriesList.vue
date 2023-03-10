@@ -253,6 +253,7 @@ export default {
   async mounted() {
     this.$loading.show();
     const { data } = await getEntries(1);
+    console.log(data);
     this.entries = data;
     this.$loading.hide();
   },

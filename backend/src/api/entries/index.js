@@ -50,7 +50,10 @@ module.exports = {
     }
 
     if (req.body && req.body.active == 1) {
-      console.log(req.body);
+      const prev_entrie = await controller.getEntrie(req.db, req.params.id);
+      console.log(prev_entrie);
+
+
       const data = await controller.updateEntrieObservation(
         req.db,
         req.params.id,
@@ -62,6 +65,12 @@ module.exports = {
         res.sendStatus(404);
         return;
       }
+
+      if(prev_entrie.workstation_id !== req.body.workstationId) {
+        await workstationsController.changeOccupation(req.db, prev_entrie.workstation_id, -1);
+        await workstationsController.changeOccupation(req.db, req.body.workstationId, 1);
+      }
+
       const response = {
         id: data.id,
         workstationId: data.workstation_id,
