@@ -124,21 +124,26 @@ export default {
   async mounted() {
     await this.update();
     setInterval(this.update, 30000);
-    let socket = new WebSocket(process.env.VUE_APP_BASE_URL_WS || 'ws://localhost:5000');
+    this.socket = new WebSocket(process.env.VUE_APP_BASE_URL_WS || 'ws://localhost:5000');
 
-    socket.onopen = function(e) {
-      socket.send("Socket Open");
+    this.socket.onopen = (e) => {
+      this.socket.send("Socket Open");
     };
 
-    socket.addEventListener('message', (event) => {
+    this.socket.addEventListener('message', (event) => {
       this.message = event.data;
       this.entryModal = true;
       this.entryStations = JSON.parse(JSON.stringify(this.stations));
     });
   },
+
+  destroyed() {
+    console.log("Test")
+    this.socket.close()
+  },
   data: () => ({
     order: [
-      69, 66, -1, 65, 62, -1, 61, 58, -1, 57, 54, -1, 53, 50, -1, -1, 49, 40, 68, 67, -1, 64, 63, -1, 60, 59, -1, 56, 55, -1, 52, 51, -1, -1, 48, 41, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 47, 42, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 71, 72, -1, 75, 76, -1, -1, -1, -1, -1, 45, 43, 70, 73, -1, 74, 77, -1, -1, -1, -1, -1, 46, 44
+      30, 28, -1, 26, 24, -1, 22, 20, -1, 18, 16, -1, 14, 12, -1, -1, 10, 7, 29, 27, -1, 25, 23, -1, 21, 19, -1, 17, 15, -1, 13, 11, -1, -1, 9, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 8, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 31, 33, -1, 35, 37, -1, -1, -1, -1, -1, 4, 2, 32, 34, -1, 36, 38, -1, -1, -1, -1, -1, 3, 1
     ],
     classData: ['l', 'r', '', 'l', 'r', '', 'l', 'r', '', 'l', 'r', '', '', '', 'l', 'r', '', '', 'l', 'r', '', 'l', 'r', '', 'l', 'r', '', 'l', 'r', '', '', '', 'l', 'r', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'l', 'r', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'l', 'r', '', '', '', '', '', '', 'l', 'r', '', '', 'l', 'r', '', '', '', '', '', '', 'l', 'r', '', ''],
     stations: '',
@@ -147,7 +152,8 @@ export default {
     entryModal: null,
     entrySelected: null,
     entryStations: '',
-    entryId: null
+    entryId: null,
+    socket: null
   }),
   methods: {
     async update() {
