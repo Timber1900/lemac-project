@@ -74,6 +74,14 @@ export default {
       this.socket.send("Socket Open");
     };
 
+    const keepSocketAlive = () => {
+      this.socket.send("test");
+
+      setInterval(keepSocketAlive, 30000);
+    }
+
+    keepSocketAlive();
+
     this.socket.addEventListener('message', async (event) => {
       const mifareId = event.data;
 
