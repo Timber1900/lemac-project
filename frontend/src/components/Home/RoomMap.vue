@@ -1,71 +1,9 @@
 <template>
   <div class="w-full h-full">
-    <v-dialog v-model="entryModal" max-width="1250px">
-      <v-card>
-        <v-form ref="formAdd" lazy-validation @submit.prevent="save">
-          <v-card-title>
-            <span class="headline"> Entrance </span>
-          </v-card-title>
-          <v-card-text>
-            <div class="grid overflow-hidden lg:grid-rows-8 grid-rows-9 grid-cols-18">
-              <div class="relative col-span-6 col-start-8 row-span-2 row-start-5 border-2 border-[#a5a5a5] flex justify-center items-center text-4xl font-semibold bg-whit">
-                Monitor
-                <div class="absolute my-auto right-[-48px]">
-                  <v-icon size="48" color="black">
-                    mdi-account
-                  </v-icon>
-                </div>
-              </div>
-              <div :class="[val.number ? 'cursor-pointer' : '', val.class]" v-for="(val) in entryStations" @click="select(val)"> {{val.number !== -1 ? val.number : ''}}</div>
-              <div class="row-span-3 col-span-18 xl:row-span-2">
-                <div class="grid grid-rows-1 grid-cols-18 border border-[#a5a5a5] my-4 py-4">
-                  <div class="flex items-center justify-center col-span-2 col-start-1 px-2 text-xs text-center lg:text-base">
-                    Legenda:
-                  </div>
-                  <div class="col-start-3 base pc-normal">
-                    LTI-PC
-                  </div>
-                  <div class="flex items-center justify-center col-span-3 col-start-4 px-2 text-xs text-center lg:text-base">
-                    Computador Livre para estudo sem portátil
-                  </div>
-                  <div class="col-start-7 base pc-laptop">
-                    LTI-PC
-                  </div>
-                  <div class="flex items-center justify-center col-span-3 col-start-8 px-2 text-xs text-center lg:text-base">
-                    Computador Livre para estudo com portátil
-                  </div>
-                  <div class="col-start-11 base pc-active">
-                    LTI-PC
-                  </div>
-                  <div class="flex items-center justify-center col-span-3 col-start-12 px-2 text-xs text-center lg:text-base">
-                    Computador em uso
-                  </div>
-                  <div class="col-start-15 base pc-selected">
-                    LTI-PC
-                  </div>
-                  <div class="flex items-center justify-center col-span-3 px-2 text-xs text-center col-start-16 lg:text-base">
-                    Computador selecionado
-                  </div>
-                </div>
-              </div>
-            </div>
-            <v-text-field
-              v-model="entryId"
-              :rules="[(v) => !!v || 'IST Id is required']"
-              label="Id"
-              type="number"
-              required
-              filled
-            ></v-text-field>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn color="primary" text @click="save"> Submit </v-btn>
-            <v-btn color="primary" text @click="close"> Close </v-btn>
-          </v-card-actions>
-        </v-form>
-
-      </v-card>
-    </v-dialog>
+    <OfflineModal v-if="modelType == 'offline'" :close="close" :entryStations="entryStations" :select="select" :userData="userData" :entryModal="entryModal"/>
+    <OnlineModal v-if="modelType == 'online'" :close="close" :entryStations="entryStations" :select="select" :userData="userData" :entryModal="entryModal"/>
+    <InBreak v-if="modelType == 'in_break'" :close="close" :entryStations="entryStations" :select="select" :userData="userData" :entryModal="entryModal"/>
+    <CreateUser v-if="modelType == 'create_user'" :close="close" :entryStations="entryStations" :select="select" :mifare_id="mifare_id" :entryModal="entryModal"/>
     <div class="grid overflow-hidden lg:grid-rows-8 grid-rows-9 grid-cols-18">
       <div class="relative col-span-6 col-start-8 row-span-2 row-start-5 border-2 border-[#a5a5a5] flex justify-center items-center text-4xl font-semibold bg-whit">
         Monitor
@@ -116,8 +54,14 @@
 </template>
 
 <script>
-import { getWorkstations } from '@/api/workstations.api';
-import { getPublications } from '@/api/publications.api';
+import { getWorkstations} from '@/api/workstations.api';
+import { getPublications} from '@/api/publications.api';
+import { getLemacUser } from '@/api/lemacUsers.api';
+import OfflineModal from "@/components/Home/EntranceModals/OfflineModal.vue";
+import OnlineModal from "@/components/Home/EntranceModals/Online.vue";
+import CreateUser from "@/components/Home/EntranceModals/CreateUser.vue";
+import InBreak from "@/components/Home/EntranceModals/InBreak.vue";
+import { addEntry, getEntries, updateEntry } from '@/api/entries.api';
 
 export default {
   name: 'RoomMap',
@@ -130,8 +74,18 @@ export default {
       this.socket.send("Socket Open");
     };
 
-    this.socket.addEventListener('message', (event) => {
-      this.message = event.data;
+    this.socket.addEventListener('message', async (event) => {
+      const mifareId = event.data;
+
+      try {
+        this.userData = (await getLemacUser(mifareId)).data;
+        this.modelType = this.userData.state;
+      } catch (error) {
+        console.log("test")
+        this.mifare_id = mifareId;
+        this.modelType = "create_user";
+      }
+
       this.entryModal = true;
       this.entryStations = JSON.parse(JSON.stringify(this.stations));
     });
@@ -140,6 +94,12 @@ export default {
   destroyed() {
     console.log("Test")
     this.socket.close()
+  },
+  components: {
+    OfflineModal,
+    OnlineModal,
+    CreateUser,
+    InBreak
   },
   data: () => ({
     order: [
@@ -153,7 +113,10 @@ export default {
     entrySelected: null,
     entryStations: '',
     entryId: null,
-    socket: null
+    socket: null,
+    modelType: "offline",
+    userData: null,
+    mifare_id: null
   }),
   methods: {
     async update() {
@@ -161,10 +124,12 @@ export default {
 
       this.stations = this.order.map((val, index) => {
         const station = data.find(station => station.name.match(/\d+/)[0] == val );
-
         const returnVal = {
           number: station ? station.name : '',
-          class: 'base'
+          class: 'base',
+          id: station ? station.id : '',
+          capacity: station ? station.capacity : '',
+          occupation: station ? station.occupation : ''
         }
 
         if(val != -1) returnVal.class = 'base pc-normal'
@@ -187,7 +152,31 @@ export default {
       const publicationData = (await getPublications()).data;
       this.publications = publicationData.filter(val => val.active)
     },
-    close() {
+    async close(action) {
+      if(action == "save") {
+          const { data } = await addEntry({
+            istId: 'ist1' + this.userData.ist_id,
+            workstationId: this.entrySelected.id,
+          });
+          this.$notify({
+            type: 'success',
+            title: 'Entry created',
+            text: `You have created an entry for workstation ${data.workstation.name}`,
+          });
+      } else if(action == "close") {
+        const entrie = ((await getEntries()).data.filter(val => val.closedAt === null && val.istId === 'ist1' + this.userData.ist_id))[0];
+        try {
+          await updateEntry(entrie.id, { active: 0 });
+          this.$notify({
+            type: 'success',
+            title: 'Entry closed',
+            text: `You have closed entry the entry on ${closed[0].workstation.name}`,
+          });
+        } catch (error) {
+
+        }
+      }
+      this.update();
       this.entryModal = false;
     },
     select(val) {
@@ -195,19 +184,21 @@ export default {
       this.entryStations = JSON.parse(JSON.stringify(this.stations));
 
       if(this.entryStations[index].number) {
+        if (this.entryStations[index].capacity - this.entryStations[index].occupation === 0) {
+          this.entrySelected = -1;
+          return
+        }
+
         const classes = this.entryStations[index].class.split(" ");
         classes[classes.length - 1] = "pc-selected";
 
         this.entryStations[index].class = classes.reduce((val, acc) => `${acc} ${val}`, "");
+        this.entrySelected = this.entryStations[index];
+      } else {
+        this.entrySelected = -1;
       };
-
-      this.entrySelected = this.entryStations[index];
     },
-    save() {
-      if (!this.$refs.formAdd.validate()) return;
 
-      this.entryModal = false;
-    }
   },
 };
 </script>

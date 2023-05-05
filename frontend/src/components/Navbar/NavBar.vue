@@ -83,7 +83,6 @@ export default {
           text: 'User Management',
           icon: 'mdi-account-multiple',
           link: '/users',
-          permission: 1,
         },
         {
           text: 'Workstations',

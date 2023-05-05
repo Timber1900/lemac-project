@@ -81,6 +81,17 @@ CREATE TABLE IF NOT EXISTS `off_days` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `date` date
 );
+CREATE TABLE IF NOT EXISTS `lemac_users` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `mifare_id` varchar(64),
+  `name` varchar(64),
+  `ist_id` int,
+  `email` text,
+  `course` varchar(64),
+  `state` ENUM ('online', 'in_break', 'offline'),
+  `last_modified` timestamp DEFAULT (now())
+);
+
 ALTER TABLE `log_hours`
 ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE
 SET NULL;
