@@ -80,7 +80,7 @@ export default {
       setInterval(keepSocketAlive, 30000);
     }
 
-    keepSocketAlive();
+    //keepSocketAlive();
 
     this.socket.addEventListener('message', async (event) => {
       const mifareId = event.data;
