@@ -5,7 +5,7 @@
   "description": "Hs project for lemac meant to control and keep track of the lab's usage",
   "author": "HackerSchool",
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "set NODE_OPTIONS=--openssl-legacy-provider &&  vue-cli-service serve",
     "build": "vue-cli-service build",
     "css-watch": "npx tailwindcss -i ./src/assets/tailwind.css -o ./src/assets/dist.css --watch"
   },

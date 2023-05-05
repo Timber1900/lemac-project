@@ -2,7 +2,7 @@
   <v-tabs grow>
     <v-tab key="1">Registration</v-tab>
     <v-tab key="2">Occurences</v-tab>
-    <v-tab key="2">Visualisation</v-tab>
+    <v-tab key="3">Visualisation</v-tab>
 
     <v-tab-item>
       <v-container>

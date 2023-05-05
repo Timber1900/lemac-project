@@ -24,6 +24,8 @@ const wsServer = new ws.Server({ noServer: true });
 
 wsServer.on('connection', socket => {
   socket.on('message', message => console.log(message.toString()));
+  socket.on('close',  (e) => console.log(e.toString()));
+  socket.on('error',  (e) => console.error(e.toString()));
 });
 
 

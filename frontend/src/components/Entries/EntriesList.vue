@@ -208,6 +208,8 @@
 <script>
 import { getEntries, updateEntry, addEntry } from '@/api/entries.api';
 import { getWorkstations } from '@/api/workstations.api';
+import { getLemacUsers, setLemacUser } from '@/api/lemacUsers.api';
+
 export default {
   data() {
     return {
@@ -288,6 +290,7 @@ export default {
 
       this.workstations = workstationsSorted;
       this.$loading.hide();
+
     },
     // close entry methods
     closeCancel() {
@@ -298,6 +301,15 @@ export default {
     },
     async closeConfirm() {
       try {
+        this.users = (await getLemacUsers()).data;
+        const user = this.users.find(val => 'ist1' + val.ist_id === this.entries[this.editedIndex].istId);
+        if(user) {
+          const newUserData = user;
+
+          newUserData.state = "offline";
+          await setLemacUser(newUserData);
+        }
+
         await updateEntry(this.entries[this.editedIndex].id, { active: 0 });
         const closed = this.entries.splice(this.editedIndex, 1);
         this.$notify({
@@ -351,7 +363,17 @@ export default {
             istId: 'ist1' + number,
             workstationId: this.newItem.workstationId,
           });
+
           this.entries.push(data);
+
+          this.users = (await getLemacUsers()).data;
+          const user = this.users.find(val => 'ist1' + val.ist_id === data.istId);
+          if(user) {
+            const newUserData = user;
+            newUserData.state = "online";
+            await setLemacUser(newUserData);
+          }
+
           this.$notify({
             type: 'success',
             title: 'Entry created',
