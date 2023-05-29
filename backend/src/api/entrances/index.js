@@ -14,7 +14,7 @@ module.exports = {
     }
 
 
-    if (req.body.key !== "e6614103e7224937") {
+    if (req.body.key !== process.env.HARDWARE_KEY) {
       res.sendStatus(401);
       return
     }
