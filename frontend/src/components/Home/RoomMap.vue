@@ -74,16 +74,19 @@ export default {
       this.socket.send("Socket Open");
     };
 
+
     const keepSocketAlive = () => {
-      this.socket.send("test");
-
-      setInterval(keepSocketAlive, 30000);
+      try {
+        this.socket.send("ping");
+      } catch (error) {
+        console.error(error);
+      }
     }
-
-    //keepSocketAlive();
+    setInterval(keepSocketAlive, 1000);
 
     this.socket.addEventListener('message', async (event) => {
       const mifareId = event.data;
+      if(mifareId === "pong") return
 
       try {
         this.userData = (await getLemacUser(mifareId)).data;
@@ -97,6 +100,11 @@ export default {
       this.entryModal = true;
       this.entryStations = JSON.parse(JSON.stringify(this.stations));
     });
+    this.socket.addEventListener('close', (event) => {
+      console.log(event);
+      setTimeout(() => {}, 10000);
+      this.socket = new WebSocket(process.env.VUE_APP_BASE_URL_WS || 'ws://localhost:5000');
+    })
   },
 
   destroyed() {

@@ -14,6 +14,8 @@ import Rooms from '@/pages/Rooms.vue';
 import Schedule from '@/pages/Schedule.vue';
 import About from '@/pages/About.vue';
 import Reservations from '@/pages/Reservations.vue';
+import Software from '@/pages/Software.vue';
+import Printing from '@/pages/Printing.vue';
 
 
 Vue.use(VueRouter);
@@ -35,6 +37,18 @@ const routes = [
     path: '/reservations',
     name: 'reservations',
     component: Reservations,
+    meta: { title: 'Reservations', noAuth: true },
+  },
+  {
+    path: '/printing',
+    name: 'printing',
+    component: Printing,
+    meta: { title: 'Printing', noAuth: true },
+  },
+  {
+    path: '/software',
+    name: 'software',
+    component: Software,
     meta: { title: 'Reservations', noAuth: true },
   },
   {
