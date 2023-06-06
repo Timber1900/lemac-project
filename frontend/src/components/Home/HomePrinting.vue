@@ -266,10 +266,8 @@
         read.onloadend = () => {
           if(read.result) {
             const binaryContents = read.result // Your binary contents here
-            console.log(read.result)
             const arrayBuffer = this.binaryStringToArrayBuffer(binaryContents);
             this.parseBinarySTL(arrayBuffer);
-
 
             const res = 0.1;
             const layerTime = 16;
@@ -376,6 +374,19 @@
           bufferView[i] = binaryString.charCodeAt(i);
         }
         return buffer;
+      },
+      convertHeaderToHex(binaryContents) {
+        var headerBytes = binaryContents.slice(0, 80);
+        console.log(headerBytes)
+        var hex = "";
+
+        for (var i = 0; i < headerBytes.length; i++) {
+          var byte = headerBytes[i];
+          var hexValue = byte.toString(16).padStart(2, "0");
+          hex += hexValue;
+        }
+
+        return hex;
       }
     },
   };
