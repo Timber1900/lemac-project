@@ -477,7 +477,6 @@ export default {
         created: new Date(),
         resolved: false,
       });
-      console.log(new_item.problems);
 
       try {
         const response = await updateWorkstation(new_item.id, new_item);
