@@ -14,7 +14,7 @@ module.exports = {
     }
 
 
-    if (req.body.key !== "e6614103e7224937") {
+    if (req.body.key !== "00000000d5510827") {
       res.sendStatus(401);
       return
     }
@@ -109,7 +109,6 @@ module.exports = {
   },
 
   async changeUserState(req, res) {
-    console.log(req.body)
     if (!req.user) {
       res.sendStatus(401);
       return;
