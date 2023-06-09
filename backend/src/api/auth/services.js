@@ -45,9 +45,9 @@ module.exports = {
           FENIX_CLIENT_ID_SOFTWARE
         )}&client_secret=${encodeURIComponent(
           FENIX_CLIENT_SECRET_SOFTWARE
-        )}&redirect_uri=${encodeURIComponent(FENIX_REDIRECT_URL_SOFTWARE)}&code=${encodeURIComponent(
-          code
-        )}&grant_type=authorization_code`
+        )}&redirect_uri=${encodeURIComponent(
+          FENIX_REDIRECT_URL_SOFTWARE
+        )}&code=${encodeURIComponent(code)}&grant_type=authorization_code`
       );
       return response.access_token;
     } catch (e) {
@@ -95,7 +95,7 @@ module.exports = {
         },
       });
 
-      console.log(result)
+      console.log(result);
 
       return result.data;
     } catch (e) {

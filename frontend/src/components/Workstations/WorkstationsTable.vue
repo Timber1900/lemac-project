@@ -466,6 +466,7 @@ export default {
       if (!this.$refs.form_issue.validate()) return;
 
       const new_item = { ...item };
+      new_item.problems = new_item.problems ?? [];
 
       new_item.problems.push({
         message: this.issue_description,
@@ -516,6 +517,7 @@ export default {
       if (!this.$refs.form_software.validate()) return;
 
       const new_item = { ...item };
+      new_item.softwares = new_item.softwares ?? [];
 
       new_item.softwares.push(this.software_to_add);
       this.software_to_add = '';
