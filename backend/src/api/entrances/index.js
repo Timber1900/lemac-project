@@ -3,7 +3,7 @@ const controller = require('./controller');
 module.exports = {
   handleEntrance: async (req, res, ws_server) => {
     const [socket] = ws_server.clients;
-
+	
     if (!socket) {
       res.sendStatus(500);
       return
@@ -109,7 +109,6 @@ module.exports = {
   },
 
   async changeUserState(req, res) {
-    console.log(req.body)
     if (!req.user) {
       res.sendStatus(401);
       return;
