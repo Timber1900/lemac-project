@@ -39,8 +39,11 @@ CREATE TABLE IF NOT EXISTS `workstations` (
   `name` varchar(255),
   `capacity` int DEFAULT 0,
   `occupation` int DEFAULT 0,
-  `type` ENUM ('active', 'disabled', 'remote')
+  `type` ENUM ('active', 'disabled', 'remote'),
+  `software`  JSON DEFAULT NULL,
+  `problems` JSON DEFAULT NULL
 );
+
 CREATE TABLE IF NOT EXISTS `entries` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `workstation_id` int,

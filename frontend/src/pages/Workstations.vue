@@ -1,7 +1,7 @@
 <template>
-  <div v-if="getPermission === 1">
+  <div>
     <v-container v-if="workstations" class="mt-6">
-      <WorkstationsTable :passedData="workstations" />
+      <WorkstationsTable :passed-data="workstations" />
     </v-container>
   </div>
 </template>
@@ -26,7 +26,7 @@ export default {
     this.$loading.show();
     const response = await getWorkstations();
     this.workstations = response.data;
-    console.log(this.workstations)
+    console.log(this.workstations);
     this.$loading.hide();
   },
 };
