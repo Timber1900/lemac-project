@@ -466,14 +466,20 @@ export default {
       if (!this.$refs.form_issue.validate()) return;
 
       const new_item = { ...item };
-      new_item.problems = new_item.problems ?? [];
 
-      new_item.problems.push({
-        message: this.issue_description,
-        closed: null,
-        created: new Date(),
-        resolved: false,
-      });
+      console.log(new_item.problems);
+      new_item.problems = new_item.problems ?? [];
+      console.log(new_item.problems);
+
+      new_item.problems = [
+        ...new_item.problems,
+        {
+          message: this.issue_description,
+          closed: null,
+          created: new Date(),
+          resolved: false,
+        },
+      ];
       this.issue_description = '';
       try {
         const response = await updateWorkstation(new_item.id, new_item);
