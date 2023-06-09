@@ -471,18 +471,17 @@ export default {
       new_item.problems = new_item.problems ?? [];
       console.log(new_item.problems);
 
-      new_item.problems = [
-        ...new_item.problems,
-        {
-          message: this.issue_description,
-          closed: null,
-          created: new Date(),
-          resolved: false,
-        },
-      ];
-      this.issue_description = '';
+      new_item.problems = new_item.problems.push({
+        message: this.issue_description,
+        closed: null,
+        created: new Date(),
+        resolved: false,
+      });
+      console.log(new_item.problems);
+
       try {
         const response = await updateWorkstation(new_item.id, new_item);
+        console.log(response);
         //this.workstations.splice(this.editedIndex, 1, response.data);
         this.$notify({
           type: 'success',
@@ -491,6 +490,7 @@ export default {
         });
       } finally {
         this.close_issue_dialog();
+        this.issue_description = '';
       }
     },
 
