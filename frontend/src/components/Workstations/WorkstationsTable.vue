@@ -22,13 +22,13 @@
         <v-dialog v-model="dialog_filter" max-width="550px">
           <template #activator="{ on, attrs }">
             <v-btn color="secondary" dark class="mb-2 mr-2" v-bind="attrs" v-on="on">
-              Filter Softares
+              Filters
             </v-btn>
           </template>
           <v-card>
             <v-form ref="form_filter" lazy-validation @submit.prevent="save">
               <v-card-title>
-                <span class="headline"> Filter Softwares </span>
+                <span class="headline"> Filter </span>
               </v-card-title>
               <v-card-text>
                 <v-select
@@ -37,7 +37,25 @@
                   label="Software to filter"
                   :rules="[(v) => v.length > 0 || 'Software to filter is required!']"
                   multiple
-                ></v-select>
+                >
+                  <div slot="prepend-item" ripple>
+                    <v-checkbox
+                      v-model="select_all"
+                      class="ml-4"
+                      label="Select all"
+                      @change="selectAll"
+                    ></v-checkbox>
+                  </div>
+                  <v-divider slot="prepend-item" class="mt-2" />
+                </v-select>
+                <v-checkbox
+                  v-model="filter_with_issues"
+                  label="Filter all with issues"
+                ></v-checkbox>
+                <v-checkbox
+                  v-model="filter_with_unresolved_issues"
+                  label="Filter all with unresolved"
+                ></v-checkbox>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -48,7 +66,7 @@
             </v-form>
           </v-card>
         </v-dialog>
-        <v-dialog v-model="dialog" max-width="550px">
+        <v-dialog v-if="getPermission === 1" v-model="dialog" max-width="550px">
           <template #activator="{ on, attrs }">
             <v-btn color="secondary" dark class="mb-2" v-bind="attrs" v-on="on">
               New Workstation
@@ -112,8 +130,10 @@
       </v-toolbar>
     </template>
     <template #[`item.actions`]="{ item }">
-      <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-      <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+      <v-icon v-if="getPermission === 1" small class="mr-2" @click="editItem(item)">
+        mdi-pencil
+      </v-icon>
+      <v-icon v-if="getPermission === 1" small @click="deleteItem(item)"> mdi-delete </v-icon>
     </template>
     <template #[`item.capacity`]="{ item }">
       {{ `${item.occupation} / ${item.capacity}` }}
@@ -126,13 +146,109 @@
     <template #expanded-item="{ headers, item }">
       <td class="shadow-inner bg-gray-50" :colspan="headers.length">
         <div class="flex flex-col w-full h-full m-4">
-          <h3 class="mt-4 text-lg font-medium">Softwares:</h3>
-          <span>
-            <li v-for="software in item.softwares" :key="software">
-              {{ software }}
-            </li>
-          </span>
-          <h3 class="mt-4 text-lg font-medium">Problems:</h3>
+          <div class="flex flex-row">
+            <div class="flex flex-col p-0 m-0 h-min">
+              <h3 class="mt-4 text-lg font-medium">Softwares:</h3>
+              <ul class="flex flex-col">
+                <li
+                  v-for="software in item.softwares"
+                  :key="software"
+                  aria-label="•"
+                  class="inline-flex flex-cols before:content-[attr(aria-label)] before:pr-2 before:my-auto before:text-lg"
+                >
+                  <span class="flex items-center justify-start">
+                    {{ software }}
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <div class="mx-4 my-auto">
+              <v-dialog v-if="getPermission === 1" v-model="dialog_software" max-width="550px">
+                <template #activator="{ on, attrs }">
+                  <v-btn color="secondary" dark class="mb-2 mr-2" v-bind="attrs" v-on="on">
+                    Add a software
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-form ref="form_software" lazy-validation @submit.prevent="save">
+                    <v-card-title>
+                      <span class="headline"> Add a software </span>
+                    </v-card-title>
+                    <v-card-text>
+                      <v-text-field
+                        v-model="software_to_add"
+                        label="Software to add"
+                        outlined
+                        :rules="[(v) => !!v || 'Software is required']"
+                      ></v-text-field>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="primary" text @click="close_software_dialog"> Cancel </v-btn>
+                      <v-btn color="primary" text @click="() => save_software(item)">
+                        Add Software
+                      </v-btn>
+                    </v-card-actions>
+                  </v-form>
+                </v-card>
+              </v-dialog>
+            </div>
+          </div>
+          <div class="flex flex-row">
+            <div class="flex flex-col p-0 m-0 h-min">
+              <h3 class="mt-4 text-lg font-medium">Problems:</h3>
+              <ul>
+                <li
+                  v-for="(problem, i) in item.problems"
+                  :key="problem.message"
+                  aria-label="•"
+                  class="relative inline-flex flex-cols before:content-[attr(aria-label)] before:pr-2 before:my-auto before:text-lg w-full pr-24"
+                >
+                  <span class="flex items-center justify-start mr-auto">
+                    {{ problem.message }}
+                  </span>
+                  <v-checkbox
+                    v-model="problem.resolved"
+                    :disabled="getPermission !== 1"
+                    class="self-end my-auto ml-4 min-w-max"
+                    hide-details
+                    label="Mark resolved"
+                    @change="(e) => change_issue_status(e, item, i)"
+                  ></v-checkbox>
+                </li>
+              </ul>
+            </div>
+            <div class="mx-4 my-auto">
+              <v-dialog v-model="dialog_issue" max-width="550px">
+                <template #activator="{ on, attrs }">
+                  <v-btn color="secondary" dark class="mb-2 mr-2" v-bind="attrs" v-on="on">
+                    Report issue
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-form ref="form_issue" lazy-validation @submit.prevent="save">
+                    <v-card-title>
+                      <span class="headline"> Report issue </span>
+                    </v-card-title>
+                    <v-card-text>
+                      <h4 class="mb-2 text-lg font-normal">Please describe the issue:</h4>
+                      <v-textarea
+                        v-model="issue_description"
+                        label="Description"
+                        outlined
+                        :rules="[(v) => !!v || 'Description is required']"
+                      ></v-textarea>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="primary" text @click="close_issue_dialog"> Cancel </v-btn>
+                      <v-btn color="primary" text @click="() => save_issue(item)"> Report </v-btn>
+                    </v-card-actions>
+                  </v-form>
+                </v-card>
+              </v-dialog>
+            </div>
+          </div>
         </div>
       </td>
     </template>
@@ -141,6 +257,7 @@
 
 <script>
 import { createWorkstation, deleteWorkstation, updateWorkstation } from '@/api/workstations.api';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'WorkstationsTable',
@@ -163,6 +280,8 @@ export default {
   data: () => ({
     dialog: false,
     dialog_filter: false,
+    dialog_issue: false,
+    dialog_software: false,
     dialogDelete: false,
     search: '',
     workstations: [],
@@ -196,12 +315,18 @@ export default {
     },
     available_software: [],
     selected_softwares: '',
+    issue_description: null,
+    software_to_add: null,
+    filter_with_issues: false,
+    filter_with_unresolved_issues: false,
+    select_all: false,
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? 'New Workstation' : 'Edit Workstation';
     },
+    ...mapGetters('user', ['getPermission']),
   },
 
   watch: {
@@ -210,6 +335,9 @@ export default {
     },
     dialogDelete(val) {
       val || this.closeDelete();
+    },
+    selected_softwares(val) {
+      this.select_all = val.length === this.available_software.length;
     },
   },
 
@@ -267,12 +395,26 @@ export default {
 
     save_filter() {
       if (!this.$refs.form_filter.validate()) return;
-      this.workstations = [...this.passedData].filter((val) => {
-        return this.selected_softwares.reduce(
-          (prev, cur) => val.softwares.includes(cur) || prev,
-          false
-        );
-      });
+      this.workstations = [...this.passedData];
+
+      if (!this.select_all)
+        this.workstations = [...this.passedData].filter((val) => {
+          return this.selected_softwares.reduce(
+            (prev, cur) => val.softwares.includes(cur) || prev,
+            false
+          );
+        });
+
+      if (this.filter_with_issues)
+        this.workstations = this.workstations.filter((val) => val.problems.length > 0);
+      if (this.filter_with_unresolved_issues)
+        this.workstations = this.workstations.filter((val) => {
+          const test = val.problems.reduce((acc, val) => {
+            return acc || !val.resolved;
+          }, false);
+
+          return val.problems.length > 0 && test;
+        });
 
       this.close_filter();
     },
@@ -318,6 +460,86 @@ export default {
       } finally {
         this.close();
       }
+    },
+
+    async save_issue(item) {
+      if (!this.$refs.form_issue.validate()) return;
+
+      const new_item = { ...item };
+
+      new_item.problems.push({
+        message: this.issue_description,
+        closed: null,
+        created: new Date(),
+        resolved: false,
+      });
+      this.issue_description = '';
+      try {
+        const response = await updateWorkstation(new_item.id, new_item);
+        //this.workstations.splice(this.editedIndex, 1, response.data);
+        this.$notify({
+          type: 'success',
+          title: 'Workstation updated',
+          text: `You have updated Workstation ${response.data.name}`,
+        });
+      } finally {
+        this.close_issue_dialog();
+      }
+    },
+
+    async close_issue_dialog() {
+      this.dialog_issue = false;
+    },
+
+    async change_issue_status(event, item, problem_index) {
+      console.log({ event, item, problem_index });
+
+      const new_item = { ...item };
+
+      new_item.problems[problem_index].resolved = event;
+      new_item.problems[problem_index].closed = event ? new Date() : null;
+
+      try {
+        const response = await updateWorkstation(new_item.id, new_item);
+        //this.workstations.splice(this.editedIndex, 1, response.data);
+        this.$notify({
+          type: 'success',
+          title: 'Workstation updated',
+          text: `You have updated Workstation ${response.data.name}`,
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    },
+
+    async save_software(item) {
+      if (!this.$refs.form_software.validate()) return;
+
+      const new_item = { ...item };
+
+      new_item.softwares.push(this.software_to_add);
+      this.software_to_add = '';
+
+      try {
+        const response = await updateWorkstation(new_item.id, new_item);
+        //this.workstations.splice(this.editedIndex, 1, response.data);
+        this.$notify({
+          type: 'success',
+          title: 'Workstation updated',
+          text: `You have updated Workstation ${response.data.name}`,
+        });
+      } finally {
+        this.close_software_dialog();
+      }
+    },
+
+    async close_software_dialog() {
+      this.dialog_software = false;
+    },
+
+    selectAll(event) {
+      this.select_all = event;
+      this.selected_softwares = event ? [...this.available_software] : [];
     },
   },
 };
