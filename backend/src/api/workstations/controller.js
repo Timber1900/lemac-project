@@ -28,6 +28,8 @@ module.exports = {
 
   updateWorkstation: async (database, workstationId, workstation) => {
     try {
+      console.log(JSON.stringify(workstation.softwares));
+
       await database.execute(
         'UPDATE workstations SET name = ?, capacity = ?, type = ?, software = ?, problems = ? WHERE id = ?',
         [
