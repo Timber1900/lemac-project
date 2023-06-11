@@ -470,7 +470,7 @@ export default {
 
       new_item.problems = new_item.problems ?? [];
 
-      new_item.problems = new_item.problems.push({
+      new_item.problems.push({
         message: this.issue_description,
         closed: null,
         created: new Date(),
