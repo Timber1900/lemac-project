@@ -34,8 +34,8 @@ module.exports = {
           workstation.name,
           workstation.capacity,
           workstation.type,
-          workstation.softwares,
-          workstation.problems,
+          JSON.stringify(workstation.softwares),
+          JSON.stringify(workstation.problems),
           workstationId,
         ]
       );

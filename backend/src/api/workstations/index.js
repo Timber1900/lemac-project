@@ -63,10 +63,11 @@ module.exports = {
   },
 
   updateWorkstation: async (req, res) => {
-    //if (!req.user || !req.user.admin) {
-    //  res.sendStatus(401);
-    //  return;
-    //}
+    if (!req.user) {
+      res.sendStatus(401);
+      return;
+    }
+
     if (
       req.body &&
       req.body.name &&
