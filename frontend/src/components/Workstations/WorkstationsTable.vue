@@ -144,7 +144,7 @@
       </v-chip>
     </template>
     <template #expanded-item="{ headers, item }">
-      <td class="shadow-inner bg-gray-50" :colspan="headers.length">
+      <td class="!h-full shadow-inner bg-gray-50" :colspan="headers.length">
         <div class="flex flex-col w-full h-full m-4">
           <div class="flex flex-row">
             <div class="flex flex-col p-0 m-0 h-min">
@@ -479,7 +479,6 @@ export default {
 
       try {
         const response = await updateWorkstation(new_item.id, new_item);
-        console.log(response);
         //this.workstations.splice(this.editedIndex, 1, response.data);
         this.$notify({
           type: 'success',

@@ -801,6 +801,10 @@ video {
   height: min-content;
 }
 
+.\!h-full {
+  height: 100% !important;
+}
+
 .max-h-12 {
   max-height: 3rem;
 }
