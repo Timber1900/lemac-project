@@ -17,7 +17,7 @@ module.exports = {
 
     for (const key in rooms) {
       const data = await controller.getHoursFenix(req.db, rooms[key], req.body.date);
-      if (data) {
+      if (data && data.events) {
         const response_individual = data.events.map((x) => {
           let start = x.period.start.split('/');
           start = [start[1], start[0], start[2]];
@@ -28,7 +28,7 @@ module.exports = {
           end = end.reduce((cur, prev) => `${cur}${prev}/`, '');
 
           return {
-            title: x.type == "LESSON" ? x.course.acronym : x.title,
+            title: x.type == 'LESSON' ? x.course.acronym : x.title,
             entry: start.slice(0, -1),
             exit: end.slice(0, -1),
             description: x.description,

@@ -3,20 +3,19 @@ const controller = require('./controller');
 module.exports = {
   handleEntrance: async (req, res, ws_server) => {
     const [socket] = ws_server.clients;
-	
+
     if (!socket) {
       res.sendStatus(500);
-      return
+      return;
     }
 
     if (req.body.mifare_id === null) {
-      res.sendStatus(400)
+      res.sendStatus(400);
     }
-
 
     if (req.body.key !== process.env.HARDWARE_KEY) {
       res.sendStatus(401);
-      return
+      return;
     }
 
     socket.send(req.body.mifare_id);
@@ -32,7 +31,7 @@ module.exports = {
     const data = await controller.getLemacUserData(req.db, req.params.mifare_id);
     if (data == null) {
       res.sendStatus(400);
-      return
+      return;
     }
 
     const response = {
@@ -43,8 +42,8 @@ module.exports = {
       state: data.state,
       email: data.email,
       course: data.course,
-      last_modified: data.last_modified
-    }
+      last_modified: data.last_modified,
+    };
 
     res.json(response);
   },
@@ -70,7 +69,7 @@ module.exports = {
         state: x.state,
         email: x.email,
         course: x.course,
-        last_modified: x.last_modified
+        last_modified: x.last_modified,
       }));
       res.json(response);
       return;
@@ -78,9 +77,7 @@ module.exports = {
       res.sendStatus(400);
     }
 
-    const response =
-
-    res.json(response);
+    const response = res.json(response);
   },
 
   async createUser(req, res) {
@@ -89,8 +86,22 @@ module.exports = {
       return;
     }
 
-    if (req.body && req.body.mifare_id && req.body.name && req.body.ist_id && req.body.email && req.body.course) {
-      const data = await controller.createUser(req.db, req.body.mifare_id, req.body.name, req.body.ist_id, req.body.email, req.body.course);
+    if (
+      req.body &&
+      req.body.mifare_id &&
+      req.body.name &&
+      req.body.ist_id &&
+      req.body.email &&
+      req.body.course
+    ) {
+      const data = await controller.createUser(
+        req.db,
+        req.body.mifare_id,
+        req.body.name,
+        req.body.ist_id,
+        req.body.email,
+        req.body.course
+      );
 
       const response = {
         id: data.id,
@@ -100,8 +111,8 @@ module.exports = {
         state: data.state,
         email: data.email,
         course: data.course,
-        last_modified: data.last_modified
-      }
+        last_modified: data.last_modified,
+      };
       res.json(response);
       return;
     }
@@ -115,7 +126,11 @@ module.exports = {
     }
 
     if (req.body && req.body.state && req.body.ist_id) {
-      if(req.body.state !== "online" && req.body.state !== "offline" && req.body.state !== "in_break") {
+      if (
+        req.body.state !== 'online' &&
+        req.body.state !== 'offline' &&
+        req.body.state !== 'in_break'
+      ) {
         res.sendStatus(400);
         return;
       }
@@ -129,12 +144,11 @@ module.exports = {
         state: data.state,
         email: data.email,
         course: data.course,
-        last_modified: data.last_modified
-      }
+        last_modified: data.last_modified,
+      };
       res.json(response);
       return;
     }
     res.sendStatus(400);
-
-  }
+  },
 };
