@@ -73,12 +73,12 @@ CREATE TABLE IF NOT EXISTS `monitor_schedule` (
   `exit` datetime,
   `created_at` timestamp DEFAULT (now())
 );
-CREATE TABLE IF NOT EXISTS `monitor_hours_targets` (
+CREATE TABLE IF NOT EXISTS `monitor_targets` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `user_id` int,
-  `week` int,
-  `target_hours` int,
-  `target_offset` int
+  `date_start` date,
+  `date_end` date,
+  `target_hours` int
 );
 CREATE TABLE IF NOT EXISTS `off_days` (
   `id` int PRIMARY KEY AUTO_INCREMENT,

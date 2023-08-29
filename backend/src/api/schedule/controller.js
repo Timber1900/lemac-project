@@ -53,7 +53,7 @@ module.exports = {
   getUserTargets: async (database) => {
     try {
       const [results] = await database.execute(
-        `SELECT l.*, u.name FROM monitor_hours_targets l LEFT JOIN users u USING (user_id)`
+        `SELECT l.*, u.name FROM monitor_targets l LEFT JOIN users u USING (user_id)`
       );
       return results;
     } catch (e) {
@@ -61,42 +61,25 @@ module.exports = {
       return;
     }
   },
-  setUserTargets: async (database, targetHours, targetOffset, week, userId) => {
+  setUserTargets: async (database, targetHours, date_start, date_end, userId) => {
     try {
-      const [results] = await database.execute(
-        `SELECT l.*, u.name FROM monitor_hours_targets l LEFT JOIN users u USING (user_id)`
+      await database.execute(
+        'INSERT INTO `monitor_targets` (user_id, date_start, date_end, target_hours) VALUES ( ? , ? , ? , ? )',
+        [userId, date_start, date_end, targetHours]
       );
-      let updated;
-      const check = results.find((val) => val.user_id === userId && val.week === week);
-      if (check) {
-        await database.execute(
-          'UPDATE monitor_hours_targets SET user_id = ?, week = ?, target_hours = ?, target_offset = ? WHERE id = ?',
-          [userId, week, targetHours, targetOffset, check.id]
-        );
 
-        [updated] = await database.execute('SELECT * FROM monitor_hours_targets WHERE id= ?', [
-          check.id,
-        ]);
-      } else {
-        await database.execute(
-          'INSERT INTO `monitor_hours_targets` (user_id, week, target_hours, target_offset) VALUES ( ? , ? , ? , ? )',
-          [userId, week, targetHours, targetOffset]
-        );
-        [updated] = await database.execute(
-          'SELECT * FROM monitor_hours_targets WHERE id=LAST_INSERT_ID()'
-        );
-      }
+      const [results] = await database.execute(
+        'SELECT * FROM monitor_targets WHERE id=LAST_INSERT_ID()'
+      );
 
-      return updated[0];
+      return results[0];
     } catch (e) {
       return e.code;
     }
   },
   getOffDays: async (database) => {
     try {
-      const [results] = await database.execute(
-        'SELECT * FROM `off_days`'
-      )
+      const [results] = await database.execute('SELECT * FROM `off_days`');
 
       return results;
     } catch (e) {
@@ -105,9 +88,7 @@ module.exports = {
   },
   setOffDays: async (database, date) => {
     try {
-      const [data] = await database.execute(
-        'SELECT * FROM `off_days`'
-      )
+      const [data] = await database.execute('SELECT * FROM `off_days`');
 
       if (data.length > 0) {
         for (const val of data) {
@@ -117,14 +98,9 @@ module.exports = {
         }
       }
 
-      await database.execute(
-        'INSERT INTO `off_days` (date) VALUES ( ? )',
-        [date]
-      );
+      await database.execute('INSERT INTO `off_days` (date) VALUES ( ? )', [date]);
 
-      const [results] = await database.execute(
-        'SELECT * FROM off_days WHERE id=LAST_INSERT_ID()'
-      );
+      const [results] = await database.execute('SELECT * FROM off_days WHERE id=LAST_INSERT_ID()');
 
       return results[0];
     } catch (e) {
@@ -140,5 +116,5 @@ module.exports = {
     } catch (e) {
       console.error(e);
     }
-  }
+  },
 };

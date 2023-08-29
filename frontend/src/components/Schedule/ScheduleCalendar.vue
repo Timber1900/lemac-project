@@ -59,7 +59,7 @@
           </v-menu>
         </v-toolbar>
       </v-sheet>
-      <v-sheet >
+      <v-sheet>
         <v-calendar
           ref="calendar"
           v-model="value"
@@ -141,62 +141,33 @@
       </v-sheet>
       <v-sheet class="flex flex-row items-center justify-start py-3">
         <v-btn color="secondary" class="mx-3" @click="downloadCalender">Download</v-btn>
-        <v-dialog v-if="getPermission === 1" v-model="dialogOffset" max-width="650px" transition="dialog-transition">
-            <template #activator="{ on, attrs }">
-              <v-btn color="secondary" class="mr-3" v-bind="attrs" v-on="on">Edit targets</v-btn>
-            </template>
-            <v-card>
-              <v-form>
-                <v-card-title> Edit targets and offsets </v-card-title>
-                <v-card-text>
-                  <v-row v-for="(user, i) in users">
-                    <span class="flex items-center justify-start px-4 text-sm font-semibold w-36">
-                      {{user.name}}:
-                    </span>
-                    <v-text-field
-                      id="target"
-                      name="target"
-                      v-model="targetHoursArray[user.id]"
-                      :label="`Target hours (${targetHoursArray[user.id]})`"
-                      class="ml-4"
-                      clearable
-                      type="number"
-                      @change="save(user)"
-                    ></v-text-field>
-                    <v-spacer></v-spacer>
-                    <v-text-field
-                      id="offset"
-                      v-model="offsetHours"
-                      name="offset"
-                      label="Hour offset"
-                      class="mr-4"
-                      clearable
-                      disabled
-                      type="number"
-                    ></v-text-field>
-                  </v-row>
-                </v-card-text>
-              </v-form>
-            </v-card>
-        </v-dialog>
-        <v-dialog v-if="getPermission === 1" v-model="dialogOffDays" max-width="450px" transition="dialog-transition">
-            <template #activator="{ on, attrs }">
-              <v-btn color="secondary" v-bind="attrs" v-on="on">Edit off days</v-btn>
-            </template>
-            <v-date-picker
-            v-model="dates"
-            class="py-3"
-            full-width
-            multiple
-            no-title
-            @input="updateDates()"
-          ></v-date-picker>
+        <v-dialog
+          v-if="getPermission === 1"
+          v-model="dialogOffset"
+          max-width="650px"
+          transition="dialog-transition"
+        >
+          <template #activator="{ on, attrs }">
+            <v-btn color="secondary" class="mr-3" v-bind="attrs" v-on="on">Targets</v-btn>
+          </template>
+          <v-card>
+            <v-form>
+              <v-card-title> {{ active_user.name }} </v-card-title>
+              <v-card-text>
+                <v-row v-for="(target, i) in userTargets" :key="i" class="px-8 text-lg font-normal">
+                  <v-checkbox></v-checkbox>
+                  <p class="my-auto">
+                    {{ formatDate(target.date_start) }} to {{ formatDate(target.date_end) }}
+                  </p>
+                  <p class="my-auto ml-auto">Target hours: {{ target.target_hours }}</p>
+                </v-row>
+              </v-card-text>
+            </v-form>
+          </v-card>
         </v-dialog>
         <span class="inline-block grow">
           <p style="text-align: center; margin: auto">{{ active_user.name }}</p>
-          <p style="text-align: center; margin: auto">
-            Target: {{ targetHours.find(val => val.user == this.active_user)?.hours }} - Current: {{ getUserHours(active_user) }}
-          </p>
+          <p style="text-align: center; margin: auto">Target:</p>
         </span>
       </v-sheet>
     </v-col>
@@ -214,7 +185,7 @@ import {
   setUserTarget,
   getOffDays,
   setOffDays,
-  deleteOffDay
+  deleteOffDay,
 } from '@/api/schedule.api';
 import Vue from 'vue';
 import ICS from 'vue-ics';
@@ -229,7 +200,7 @@ export default {
     value: '',
     dialogOffset: '',
     dialogOffDays: '',
-    targetHours: [],
+    userTargets: [],
     offsetHours: 0,
     switchValue: false,
     events: [],
@@ -288,7 +259,7 @@ export default {
 
     const off_days = (await getOffDays()).data;
     this.offDays = [...this.offDays, ...off_days];
-    this.dates = this.offDays.map(val => new Date(val.date).toISOString().split('T')[0])
+    this.dates = this.offDays.map((val) => new Date(val.date).toISOString().split('T')[0]);
 
     cal.scrollToTime(8.5 * 60);
     Vue.use(ICS, {});
@@ -321,11 +292,9 @@ export default {
       if (this.cal) {
         const now = this.cal.times.now;
         const nowDate = moment();
-        now.hour = nowDate.utcOffset("+0100").hour();
+        now.hour = nowDate.utcOffset('+0100').hour();
         now.minute = nowDate.minute();
         this.nowY = this.cal.timeToY(this.cal.times.now) + 'px';
-
-
       } else {
         this.nowY = '-10px';
       }
@@ -333,13 +302,19 @@ export default {
     };
 
     refresh();
+
+    this.userTargets = (await getUserTargets()).data.filter(
+      (val) => val.userId === this.active_user.id
+    );
+
+    console.log(this.userTargets);
   },
   methods: {
     formatTime(start, end) {
       const startDate = moment(start);
       const endDate = moment(end);
 
-      return `${startDate.format("HH:mm")} - ${endDate.format("HH:mm")}`;
+      return `${startDate.format('HH:mm')} - ${endDate.format('HH:mm')}`;
     },
     startDrag(e) {
       if (e.event && e.timed) {
@@ -371,12 +346,11 @@ export default {
         this.createStart = this.roundTime(mouse.getTime());
         this.createEvent = {
           name: this.active_user ? this.active_user.name : 'Unkown',
-          start: moment(this.createStart).format("YYYY-MM-DD HH:mm"),
-          end: moment(this.createStart).format("YYYY-MM-DD HH:mm"),
+          start: moment(this.createStart).format('YYYY-MM-DD HH:mm'),
+          end: moment(this.createStart).format('YYYY-MM-DD HH:mm'),
           color: this.colors[this.active_user.id],
           details: { userId: this.active_user.id },
           timed: true,
-
         };
         this.events.push(this.createEvent);
       }
@@ -404,17 +378,17 @@ export default {
         newEnd = moment(newEnd);
 
         if (newStart.hours() < 9) {
-          newStart.set({hour: 9, minute: 0});
+          newStart.set({ hour: 9, minute: 0 });
           newEnd = moment(newStart.valueOf() + duration);
         }
 
         if (newEnd.hours() > 21 || (newEnd.hours() == 21 && newEnd.minutes() != 0)) {
-          newEnd.set({hour: 21, minute: 0});
+          newEnd.set({ hour: 21, minute: 0 });
           newStart = moment(newEnd.valueOf() - duration);
         }
 
         if (newEnd.day() != newStart.day()) {
-          newEnd.set({hour: 21, minute: 0, date: newStart.date()});
+          newEnd.set({ hour: 21, minute: 0, date: newStart.date() });
           newStart = moment(newEnd.valueOf() - duration);
         }
 
@@ -422,8 +396,8 @@ export default {
           return;
         }
 
-        this.dragEvent.start = newStart.format("YYYY-MM-DD HH:mm");
-        this.dragEvent.end = newEnd.format("YYYY-MM-DD HH:mm");
+        this.dragEvent.start = newStart.format('YYYY-MM-DD HH:mm');
+        this.dragEvent.end = newEnd.format('YYYY-MM-DD HH:mm');
       } else if (this.createEvent && this.createStart !== null) {
         const mouse = this.toDate(e).getTime();
         const mouseRounded = this.roundTime(mouse, false);
@@ -432,17 +406,17 @@ export default {
 
         let startDate = moment(min);
         if (startDate.hours() < 9) {
-          startDate.set({hour: 9,  minute: 0});
+          startDate.set({ hour: 9, minute: 0 });
         }
-        this.createEvent.start = startDate.format("YYYY-MM-DD HH:mm");
+        this.createEvent.start = startDate.format('YYYY-MM-DD HH:mm');
         let endDate = moment(max);
         if (endDate.hours() > 21 || (endDate.hours() == 21 && endDate.minutes() != 0)) {
-          endDate.set({hour: 21, minute: 0});
+          endDate.set({ hour: 21, minute: 0 });
         }
         if (endDate.day() != startDate.day()) {
-          endDate.set({hour: 21, minute: 0, date: startDate.date()});
+          endDate.set({ hour: 21, minute: 0, date: startDate.date() });
         }
-        this.createEvent.end = endDate.format("YYYY-MM-DD HH:mm");
+        this.createEvent.end = endDate.format('YYYY-MM-DD HH:mm');
       }
     },
     async endDrag() {
@@ -564,7 +538,7 @@ export default {
         : new Date(tms.year, tms.month - 1, tms.day, tms.hour, tms.minute);
     },
     toTimestamp(date) {
-      return moment(date).utcOffset('+0000').format("YYYY-MM-DD HH:mm");
+      return moment(date).utcOffset('+0000').format('YYYY-MM-DD HH:mm');
       //return `${date.getFullYear()}-${
       //  date.getMonth()+1
       //}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
@@ -586,105 +560,7 @@ export default {
     getUniqueId(event) {
       return `${event.name}${event.start}${event.end}`;
     },
-    getUserHours(user) {
-      const calenderDate = this.value ? new Date(this.value) : new Date();
-
-      const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
-      const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
-      const curWeek = Math.floor(numberOfDays / (7 * 4));
-
-      let event_weeks = this.events.map((val) => {
-        const calenderDate = new Date(val.start);
-
-        const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
-        const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
-        const curWeek = Math.floor(numberOfDays / (7 * 4));
-
-        return {
-          event: val,
-          week: curWeek,
-        };
-      });
-
-      const res = event_weeks.filter((val) => val.week === curWeek);
-
-      const user_hours = res.reduce((acc, val) => {
-        if (val.event.details.userId == user.id) {
-          const work_hours =
-            (new Date(val.event.end) - new Date(val.event.start)) / (1000 * 60 * 60);
-          return acc + work_hours;
-        }
-        return acc;
-      }, 0);
-
-      return user_hours;
-    },
-    async getTargetHours() {
-      const calenderDate = this.value ? new Date(this.value) : new Date();
-      const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
-      const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
-      const curWeek = Math.floor(numberOfDays / (7 * 4));
-
-      const off_in_week = this.offDays.filter(val => {
-        const calenderDate = new Date(val.date);
-        const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
-        const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
-        const curWeekLocal = Math.floor(numberOfDays / (7 * 4));
-
-        return curWeek == curWeekLocal;
-      });
-
-      const databaseTargets = (await getUserTargets()).data;
-
-      this.targetHours = [];
-
-      for(const user of this.users) {
-        const check = databaseTargets.find(
-          (val) => val.week === curWeek && val.userId === user.id
-        );
-
-
-        const weekVals = databaseTargets.filter(
-          (val) => val.week === curWeek && val.targetHours !== null
-        );
-
-        const workedHours = weekVals.reduce((acc, val) => acc + (val.targetHours ?? 0), 0);
-
-        const fullHours = 12 * 5 * 4 - workedHours - (12*off_in_week.length);
-
-
-        if (check) {
-          this.targetHours = [...this.targetHours, {hours: check.targetHours ?? Math.floor(fullHours / (this.users.length - weekVals.length)), user}]
-        } else {
-          let workedHours = 0;
-          const calenderDate = this.value ? new Date(this.value) : new Date();
-          const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
-          const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
-          const curWeek = Math.floor(numberOfDays / (7 * 4));
-
-          for (const ev of this.events) {
-            const calenderDate = new Date(ev.start);
-            const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
-            const eventWeek = Math.floor(numberOfDays / (7 * 4));
-
-            if (curWeek == eventWeek) {
-              workedHours += (new Date(ev.end) - new Date(ev.start)) / (60 * 60 * 1000);
-            }
-          }
-
-          const fullHours = 12 * 5 * 4 - workedHours - workedHours - (12*off_in_week.length);
-          if (fullHours === 0) {
-            this.targetHours = [...this.targetHours, 0]
-          } else {
-            this.targetHours = [...this.targetHours, {hours: Math.floor(fullHours / (this.users.length - weekVals.length)), user}]
-          }
-        }
-      }
-
-      for(const hour of this.targetHours) {
-        this.targetHoursArray[hour.user.id] = hour.hours;
-      }
-    },
+    async getTargetHours() {},
     async save(user) {
       const calenderDate = this.value ? new Date(this.value) : new Date();
 
@@ -692,7 +568,7 @@ export default {
       const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
       const curWeek = Math.floor(numberOfDays / (7 * 4));
 
-      const off_in_week = this.offDays.filter(val => {
+      const off_in_week = this.offDays.filter((val) => {
         const calenderDate = new Date(val.date);
         const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
         const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
@@ -751,7 +627,7 @@ export default {
     },
     testDate(date) {
       for (const val of this.offDays) {
-        if(new Date(date).toLocaleDateString() === new Date(val.date).toLocaleDateString()) {
+        if (new Date(date).toLocaleDateString() === new Date(val.date).toLocaleDateString()) {
           return true;
         }
       }
@@ -762,31 +638,31 @@ export default {
       let off_days = (await getOffDays()).data;
       this.offDays = [...off_days];
 
-      const addedDates = this.dates.filter(val => {
-        if(this.offDays.length == 0) return true
+      const addedDates = this.dates.filter((val) => {
+        if (this.offDays.length == 0) return true;
 
-        for(const {date} of this.offDays) {
+        for (const { date } of this.offDays) {
           if (new Date(date).toLocaleDateString() !== new Date(val).toLocaleDateString()) {
-            return true
+            return true;
           }
         }
         return false;
       });
 
-      const removedDates =  this.offDays.filter(({date}) => {
-        for(const val of this.dates) {
+      const removedDates = this.offDays.filter(({ date }) => {
+        for (const val of this.dates) {
           if (new Date(date).toLocaleDateString() === new Date(val).toLocaleDateString()) {
-            return false
+            return false;
           }
         }
         return true;
       });
 
-      for(const date of addedDates) {
-        await setOffDays({date});
+      for (const date of addedDates) {
+        await setOffDays({ date });
       }
 
-      for(const val of removedDates) {
+      for (const val of removedDates) {
         await deleteOffDay(val.id);
       }
 
@@ -794,8 +670,12 @@ export default {
       this.offDays = [...off_days];
 
       this.getTargetHours();
-    }
+    },
+    formatDate(dateSQL) {
+      const dates = dateSQL.split('T')[0].split('-');
 
+      return `${dates[2]}-${dates[1]}-${dates[0]}`;
+    },
   },
 };
 </script>

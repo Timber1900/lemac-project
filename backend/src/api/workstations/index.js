@@ -28,8 +28,8 @@ module.exports = {
         capacity: data.capacity,
         type: data.type,
         occupation: data.occupation,
-        softwares: JSON.parse(data.software) ?? [],
-        problems: JSON.parse(data.problems) ?? [],
+        softwares: data.software ?? [],
+        problems: data.problems ?? [],
       };
 
       res.json(response);
@@ -51,8 +51,8 @@ module.exports = {
         capacity: x.capacity,
         type: x.type,
         occupation: x.occupation,
-        softwares: JSON.parse(x.software) ?? [],
-        problems: JSON.parse(x.problems) ?? [],
+        softwares: x.software ?? [],
+        problems: x.problems ?? [],
       }));
       res.json(response);
       return;
@@ -93,8 +93,8 @@ module.exports = {
         occupation: data.occupation,
         capacity: data.capacity,
         type: data.type,
-        softwares: JSON.parse(data.software) ?? [],
-        problems: JSON.parse(data.problems) ?? [],
+        softwares: data.software ?? [],
+        problems: data.problems ?? [],
       };
 
       res.json(response);

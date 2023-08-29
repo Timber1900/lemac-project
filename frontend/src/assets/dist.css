@@ -760,6 +760,10 @@ video {
   margin-top: 1.5rem;
 }
 
+.ml-auto {
+  margin-left: auto;
+}
+
 .block {
   display: block;
 }
@@ -784,6 +788,10 @@ video {
   display: contents;
 }
 
+.\!h-full {
+  height: 100% !important;
+}
+
 .h-\[40vh\] {
   height: 40vh;
 }
@@ -799,10 +807,6 @@ video {
 .h-min {
   height: -webkit-min-content;
   height: min-content;
-}
-
-.\!h-full {
-  height: 100% !important;
 }
 
 .max-h-12 {
@@ -905,6 +909,12 @@ video {
   --tw-divide-y-reverse: 0;
   border-top-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
   border-bottom-width: calc(1px * var(--tw-divide-y-reverse));
+}
+
+.divide-x > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-x-reverse: 0;
+  border-right-width: calc(1px * var(--tw-divide-x-reverse));
+  border-left-width: calc(1px * calc(1 - var(--tw-divide-x-reverse)));
 }
 
 .divide-gray-500 > :not([hidden]) ~ :not([hidden]) {

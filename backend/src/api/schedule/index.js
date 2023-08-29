@@ -107,31 +107,39 @@ module.exports = {
     }
   },
   setUserTarget: async (req, res) => {
-    if (!req.user || !req.user.admin) {
-      res.sendStatus(401);
-      return;
-    }
+    //if (!req.user || !req.user.admin) {
+    //  res.sendStatus(401);
+    //  return;
+    //}
 
-    if (req.body && req.body.week !== null && req.body.userId !== null) {
-      //how to verifie that the hours exists in db
+    if (
+      req.body &&
+      req.body.date_start !== null &&
+      req.body.date_end !== null &&
+      req.body.userId !== null &&
+      req.body.targetHours !== null
+    ) {
       const data = await controller.setUserTargets(
         req.db,
         req.body.targetHours,
-        req.body.targetOffset,
-        req.body.week,
+        req.body.date_start,
+        req.body.date_end,
         req.body.userId
       );
+
+      console.log(data);
 
       if (!data) {
         res.sendStatus(404);
         return;
       }
+
       const response = {
         id: data.id,
         userId: data.user_id,
-        week: data.week,
-        targetHours: data.target_hours,
-        targetOffset: data.target_offset,
+        date_start: data.date_start,
+        date_end: data.date_end,
+        target_hours: data.target_hours,
       };
 
       res.json(response);
@@ -140,10 +148,10 @@ module.exports = {
     res.sendStatus(400);
   },
   getUserTargets: async (req, res) => {
-    if (!req.user) {
+    /*if (!req.user) {
       res.sendStatus(401);
       return;
-    }
+    }*/
 
     const data = await controller.getUserTargets(req.db);
 
@@ -153,9 +161,9 @@ module.exports = {
       const response = data.map((val) => ({
         id: val.id,
         userId: val.user_id,
-        week: val.week,
-        targetHours: val.target_hours,
-        targetOffset: val.target_offset,
+        date_start: val.date_start,
+        date_end: val.date_end,
+        target_hours: val.target_hours,
       }));
       res.json(response);
       return;
@@ -170,10 +178,7 @@ module.exports = {
     }
 
     if (req.body && req.body.date !== null) {
-      const data = await controller.setOffDays(
-        req.db,
-        date_to_sql(req.body.date)
-      );
+      const data = await controller.setOffDays(req.db, date_to_sql(req.body.date));
 
       if (!data) {
         res.sendStatus(404);
@@ -181,7 +186,7 @@ module.exports = {
       }
       const response = {
         date: data.date,
-        id: data.id
+        id: data.id,
       };
 
       res.json(response);
@@ -202,7 +207,7 @@ module.exports = {
     } else if (data.length > 0) {
       const response = data.map((val) => ({
         date: val.date,
-        id: val.id
+        id: val.id,
       }));
       res.json(response);
       return;
@@ -229,5 +234,5 @@ module.exports = {
       res.sendStatus(400);
       return;
     }
-  }
+  },
 };
