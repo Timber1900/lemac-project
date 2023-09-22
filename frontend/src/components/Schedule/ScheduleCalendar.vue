@@ -153,15 +153,92 @@
           <v-card>
             <v-form>
               <v-card-title> {{ active_user.name }} </v-card-title>
-              <v-card-text>
-                <v-row v-for="(target, i) in userTargets" :key="i" class="px-8 text-lg font-normal">
-                  <v-checkbox></v-checkbox>
-                  <p class="my-auto">
-                    {{ formatDate(target.date_start) }} to {{ formatDate(target.date_end) }}
-                  </p>
-                  <p class="my-auto ml-auto">Target hours: {{ target.target_hours }}</p>
-                </v-row>
+              <v-card-text class="divide-y">
+                <v-container
+                  v-for="(target, i) in userTargets"
+                  :key="i"
+                  class="px-8 text-lg font-normal my-2"
+                >
+                  <div class="grid grid-cols-5 grid-rows-2">
+                    <p class="my-auto col-span-3 row-span-1">
+                      {{ formatDate(target.date_start) }} to {{ formatDate(target.date_end) }}
+                    </p>
+                    <p class="my-auto ml-auto col-span-2 row-span-2 col-start-4">
+                      Target hours: {{ target.target_hours }}
+                    </p>
+                    <v-btn
+                      color="primary"
+                      medium
+                      class="col-span-2 row-span-1 col-start-1 row-start-2"
+                      >Edit Target</v-btn
+                    >
+                  </div>
+                </v-container>
               </v-card-text>
+              <v-card-actions>
+                <div class="grid grid-cols-5 w-full">
+                  <v-dialog v-model="targetDialog" max-width="500px" transition="dialog-transition">
+                    <template #activator="{ on, attrs }">
+                      <v-btn class="col-span-3" color="primary" v-bind="attrs" v-on="on"
+                        >Add Target</v-btn
+                      >
+                    </template>
+                    <v-card>
+                      <v-card-title primary-title> Create new target </v-card-title>
+                      <v-card-text>
+                        <v-menu
+                          ref="menu3"
+                          v-model="menu3"
+                          :close-on-content-click="false"
+                          :close-on-click="false"
+                          :nudge-right="40"
+                          :return-value.sync="targetDate"
+                          transition="scale-transition"
+                          offset-y
+                        >
+                          <template #activator="{ on, attrs }">
+                            <v-text-field
+                              v-model="targetDate"
+                              label="Date for reservation"
+                              prepend-icon="mdi-calendar"
+                              required
+                              v-bind="attrs"
+                              v-on="on"
+                            ></v-text-field>
+                          </template>
+                          <v-date-picker
+                            v-if="menu3"
+                            v-model="targetDate"
+                            range
+                            :landscape="true"
+                            :reactive="true"
+                          >
+                            <v-spacer />
+                            <v-btn text color="success" @click="menu3 = false"> Cancel </v-btn>
+                            <v-btn text color="secondary" @click="$refs.menu3.save(targetDate)">
+                              OK
+                            </v-btn>
+                          </v-date-picker>
+                        </v-menu>
+                        <v-text-field
+                          v-model="targetHours"
+                          type="number"
+                          label="Target Hours"
+                        ></v-text-field>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-btn color="primary" @click="createTarget()">Add target</v-btn>
+                        <v-btn color="error" @click="closeCreateTarget()">Cancel</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+
+                  <div class="col-span-2 col-start-4 ml-auto flex gap-2">
+                    <v-btn color="primary" medium>{{ '<' }}</v-btn>
+                    <v-btn color="primary" medium>{{ '>' }}</v-btn>
+                  </div>
+                </div>
+              </v-card-actions>
             </v-form>
           </v-card>
         </v-dialog>
@@ -236,6 +313,10 @@ export default {
     offDays: [],
     dates: [],
     targetHoursArray: [],
+    targetDialog: false,
+    menu3: false,
+    targetDate: [],
+    targetHours: '',
   }),
   computed: {
     cal() {
@@ -675,6 +756,13 @@ export default {
       const dates = dateSQL.split('T')[0].split('-');
 
       return `${dates[2]}-${dates[1]}-${dates[0]}`;
+    },
+    async createTarget() {
+      console.log({ a: this.targetDate, b: this.targetHours });
+      this.targetDialog = false;
+    },
+    closeCreateTarget() {
+      this.targetDialog = false;
     },
   },
 };
