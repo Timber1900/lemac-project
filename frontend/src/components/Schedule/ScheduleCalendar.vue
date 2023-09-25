@@ -155,28 +155,29 @@
               <v-card-title> {{ active_user.name }} </v-card-title>
               <v-card-text class="divide-y">
                 <v-container
-                  v-for="(target, i) in userTargets"
+                  v-for="(target, i) in userTargets.slice(startIndex, startIndex + 4)"
                   :key="i"
-                  class="px-8 text-lg font-normal my-2"
+                  class="px-8 my-2 text-lg font-normal"
                 >
                   <div class="grid grid-cols-5 grid-rows-2">
-                    <p class="my-auto col-span-3 row-span-1">
-                      {{ formatDate(target.date_start) }} to {{ formatDate(target.date_end) }}
-                    </p>
-                    <p class="my-auto ml-auto col-span-2 row-span-2 col-start-4">
-                      Target hours: {{ target.target_hours }}
-                    </p>
                     <v-btn
                       color="primary"
                       medium
-                      class="col-span-2 row-span-1 col-start-1 row-start-2"
+                      class="col-span-2 col-start-1 row-span-1 row-start-2"
+                      @click="startEdit(i)"
                       >Edit Target</v-btn
                     >
+                    <p class="col-span-3 row-span-1 my-auto">
+                      {{ formatDate(target.date_start) }} to {{ formatDate(target.date_end) }}
+                    </p>
+                    <p class="col-span-2 col-start-4 row-span-2 my-auto ml-auto">
+                      Target hours: {{ target.target_hours }}
+                    </p>
                   </div>
                 </v-container>
               </v-card-text>
               <v-card-actions>
-                <div class="grid grid-cols-5 w-full">
+                <div class="grid w-full grid-cols-5">
                   <v-dialog v-model="targetDialog" max-width="500px" transition="dialog-transition">
                     <template #activator="{ on, attrs }">
                       <v-btn class="col-span-3" color="primary" v-bind="attrs" v-on="on"
@@ -233,9 +234,25 @@
                     </v-card>
                   </v-dialog>
 
-                  <div class="col-span-2 col-start-4 ml-auto flex gap-2">
-                    <v-btn color="primary" medium>{{ '<' }}</v-btn>
-                    <v-btn color="primary" medium>{{ '>' }}</v-btn>
+                  <div class="flex col-span-2 col-start-4 gap-2 ml-auto">
+                    <v-btn
+                      color="primary"
+                      medium
+                      @click="() => (startIndex = startIndex - 4 < 0 ? 0 : startIndex - 4)"
+                      >{{ '<' }}</v-btn
+                    >
+                    <v-btn
+                      color="primary"
+                      medium
+                      @click="
+                        () =>
+                          (startIndex =
+                            startIndex + 4 >= userTargets.length
+                              ? userTargets.length - 4
+                              : startIndex + 4)
+                      "
+                      >{{ '>' }}</v-btn
+                    >
                   </div>
                 </div>
               </v-card-actions>
@@ -244,10 +261,58 @@
         </v-dialog>
         <span class="inline-block grow">
           <p style="text-align: center; margin: auto">{{ active_user.name }}</p>
-          <p style="text-align: center; margin: auto">Target:</p>
+          <p style="text-align: center; margin: auto">
+            Target: {{ getTargetHours() }} - Current: {{ getWorkingHours() }}
+          </p>
         </span>
       </v-sheet>
     </v-col>
+    <v-dialog v-model="editTarget" max-width="500px" transition="dialog-transition">
+      <v-card>
+        <v-card-title primary-title> Edit target </v-card-title>
+        <v-card-text>
+          <v-menu
+            ref="editCalender"
+            v-model="editCalender"
+            :close-on-content-click="false"
+            :close-on-click="false"
+            :nudge-right="40"
+            :return-value.sync="targetDate"
+            transition="scale-transition"
+            offset-y
+          >
+            <template #activator="{ on, attrs }">
+              <v-text-field
+                v-model="targetDate"
+                label="Date for reservation"
+                prepend-icon="mdi-calendar"
+                required
+                v-bind="attrs"
+                v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-if="editCalender"
+              v-model="targetDate"
+              range
+              :landscape="true"
+              :reactive="true"
+            >
+              <v-spacer />
+              <v-btn text color="success" @click="editCalender = false"> Cancel </v-btn>
+              <v-btn text color="secondary" @click="$refs.editCalender.save(targetDate)">
+                OK
+              </v-btn>
+            </v-date-picker>
+          </v-menu>
+          <v-text-field v-model="targetHours" type="number" label="Target Hours"></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" @click="finishEditTarget()">Edit target</v-btn>
+          <v-btn color="error" @click="closeEditTarget()">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-row>
 </template>
 
@@ -260,6 +325,7 @@ import {
   updateHour,
   getUserTargets,
   setUserTarget,
+  editUserTarget,
   getOffDays,
   setOffDays,
   deleteOffDay,
@@ -317,6 +383,10 @@ export default {
     menu3: false,
     targetDate: [],
     targetHours: '',
+    startIndex: 0,
+    editTarget: false,
+    editCalender: false,
+    editingTarget: null,
   }),
   computed: {
     cal() {
@@ -326,10 +396,7 @@ export default {
   },
   watch: {
     active_user() {
-      this.getTargetHours();
-    },
-    value() {
-      this.getTargetHours();
+      this.getUserTargets();
     },
   },
   async mounted() {
@@ -384,11 +451,7 @@ export default {
 
     refresh();
 
-    this.userTargets = (await getUserTargets()).data.filter(
-      (val) => val.userId === this.active_user.id
-    );
-
-    console.log(this.userTargets);
+    await getUserTargets();
   },
   methods: {
     formatTime(start, end) {
@@ -544,50 +607,6 @@ export default {
         };
         this.events[index] = updatedEvent;
       }
-
-      let workedHours = 0;
-      const calenderDate = this.value ? new Date(this.value) : new Date();
-      const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
-      const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
-      const curWeek = Math.floor(numberOfDays / (7 * 4));
-
-      for (const ev of this.events) {
-        const calenderDate = new Date(ev.start);
-        const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
-        const eventWeek = Math.floor(numberOfDays / (7 * 4));
-
-        if (curWeek == eventWeek) {
-          workedHours += (new Date(ev.end) - new Date(ev.start)) / (60 * 60 * 1000);
-        }
-      }
-
-      const fullHours = 12 * 5 * 4 - workedHours;
-      if (fullHours === 0) {
-        const databaseTargets = (await getUserTargets()).data;
-        const weekVals = databaseTargets.filter(
-          (val) => val.week === curWeek && val.targetHours !== null
-        );
-        const workedHours = weekVals.reduce((acc, val) => acc + val.targetHours, 0);
-        const fullHours = 12 * 5 * 4 - workedHours;
-        const defaultTarget = fullHours / (this.users.length - weekVals.length);
-
-        for (const user of this.users) {
-          const check = databaseTargets.find(
-            (val) => val.week === curWeek && val.userId === user.id
-          );
-
-          if (!check) {
-            const dataChange = {
-              userId: user.id,
-              targetHours: defaultTarget,
-              targetOffset: 0,
-              week: curWeek,
-            };
-
-            await setUserTarget(dataChange);
-          }
-        }
-      }
     },
     cancelDrag() {
       if (this.createEvent) {
@@ -640,35 +659,6 @@ export default {
     },
     getUniqueId(event) {
       return `${event.name}${event.start}${event.end}`;
-    },
-    async getTargetHours() {},
-    async save(user) {
-      const calenderDate = this.value ? new Date(this.value) : new Date();
-
-      const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
-      const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
-      const curWeek = Math.floor(numberOfDays / (7 * 4));
-
-      const off_in_week = this.offDays.filter((val) => {
-        const calenderDate = new Date(val.date);
-        const oneAug = new Date(calenderDate.getFullYear(), 6, 17);
-        const numberOfDays = Math.floor((calenderDate - oneAug) / (24 * 60 * 60 * 1000));
-        const curWeekLocal = Math.floor(numberOfDays / (7 * 4));
-
-        return curWeek == curWeekLocal;
-      });
-
-      const dataChange = {
-        userId: user.id,
-        targetHours: this.targetHoursArray[user.id],
-        targetOffset: this.offsetHours,
-        week: curWeek,
-      };
-
-      const data = (await setUserTarget(dataChange)).data;
-
-      await this.getTargetHours();
-      this.offsetHours = data.targetOffset;
     },
     downloadCalender() {
       const calenderDate = this.value ? new Date(this.value) : new Date();
@@ -758,11 +748,107 @@ export default {
       return `${dates[2]}-${dates[1]}-${dates[0]}`;
     },
     async createTarget() {
-      console.log({ a: this.targetDate, b: this.targetHours });
+      const data = {
+        date_start: this.targetDate[0],
+        date_end: this.targetDate[1],
+        userId: this.active_user.id,
+        targetHours: this.targetHours,
+      };
+
+      await setUserTarget(data);
+      this.getUserTargets();
+
       this.targetDialog = false;
     },
     closeCreateTarget() {
       this.targetDialog = false;
+    },
+    async getUserTargets() {
+      this.userTargets = (await getUserTargets()).data.filter(
+        (val) => val.userId === this.active_user.id
+      );
+
+      this.editArray = new Array(this.userTargets.length).fill(false);
+      this.editCalenders = new Array(this.userTargets.length).fill(false);
+
+      this.userTargets.sort((a, b) => {
+        const dateA = new Date(a.date_end);
+        const dateB = new Date(b.date_end);
+
+        // Compare the date_end values
+        if (dateA > dateB) {
+          return -1; // a should come before b
+        } else if (dateA < dateB) {
+          return 1; // b should come before a
+        } else {
+          return 0; // dates are equal
+        }
+      });
+    },
+    getTargetHours() {
+      let currentDate = new Date(this.value);
+
+      if (currentDate == 'Invalid Date') currentDate = new Date();
+      const currentTarget = this.userTargets.find((val) => {
+        return currentDate >= new Date(val.date_start) && currentDate <= new Date(val.date_end);
+      });
+
+      return currentTarget ? currentTarget.target_hours : '...';
+    },
+    getWorkingHours() {
+      let currentDate = new Date(this.value);
+
+      if (currentDate == 'Invalid Date') currentDate = new Date();
+      const currentTarget = this.userTargets.find((val) => {
+        return currentDate >= new Date(val.date_start) && currentDate <= new Date(val.date_end);
+      });
+
+      if (!currentTarget) return '...';
+
+      const currentEvents = this.events.filter((event) => {
+        const test1 = event.details.userId == this.active_user.id;
+        const test2 =
+          new Date(event.start) >= new Date(currentTarget.date_start) &&
+          new Date(event.end) <= new Date(currentTarget.date_end);
+
+        return test1 && test2;
+      });
+
+      const workHours = currentEvents.reduce((accumulator, event) => {
+        const startTime = new Date(event.start).getTime(); // Get start time in milliseconds
+        const endTime = new Date(event.end).getTime(); // Get end time in milliseconds
+
+        const eventDuration = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+        return accumulator + eventDuration;
+      }, 0);
+
+      return workHours;
+    },
+    async finishEditTarget() {
+      const data = {
+        date_start: this.targetDate[0],
+        date_end: this.targetDate[1],
+        targetHours: this.targetHours,
+      };
+
+      console.log(data);
+      await editUserTarget(this.editingTarget.id, data);
+      this.getUserTargets();
+
+      this.editTarget = false;
+    },
+    closeEditTarget() {
+      this.editTarget = false;
+    },
+    startEdit(i) {
+      this.editingTarget = this.userTargets.slice(this.startIndex, this.startIndex + 4)[i];
+      this.editTarget = true;
+      this.targetDate = [
+        this.editingTarget.date_start.split('T')[0],
+        this.editingTarget.date_end.split('T')[0],
+      ];
+
+      this.targetHours = this.editingTarget.target_hours;
     },
   },
 };

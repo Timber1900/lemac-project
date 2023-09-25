@@ -107,10 +107,10 @@ module.exports = {
     }
   },
   setUserTarget: async (req, res) => {
-    //if (!req.user || !req.user.admin) {
-    //  res.sendStatus(401);
-    //  return;
-    //}
+    if (!req.user || !req.user.admin) {
+      res.sendStatus(401);
+      return;
+    }
 
     if (
       req.body &&
@@ -147,11 +147,49 @@ module.exports = {
     }
     res.sendStatus(400);
   },
-  getUserTargets: async (req, res) => {
-    /*if (!req.user) {
+  editUserTarget: async (req, res) => {
+    if (!req.user || !req.user.admin) {
       res.sendStatus(401);
       return;
-    }*/
+    }
+
+    if (
+      req.body &&
+      req.body.date_start !== null &&
+      req.body.date_end !== null &&
+      req.body.targetHours !== null
+    ) {
+      const data = await controller.editUserTargets(
+        req.db,
+        req.body.targetHours,
+        req.body.date_start,
+        req.body.date_end,
+        req.params.id
+      );
+
+      if (!data) {
+        res.sendStatus(404);
+        return;
+      }
+
+      const response = {
+        id: data.id,
+        userId: data.user_id,
+        date_start: data.date_start,
+        date_end: data.date_end,
+        target_hours: data.target_hours,
+      };
+
+      res.json(response);
+      return;
+    }
+    res.sendStatus(400);
+  },
+  getUserTargets: async (req, res) => {
+    if (!req.user) {
+      res.sendStatus(401);
+      return;
+    }
 
     const data = await controller.getUserTargets(req.db);
 

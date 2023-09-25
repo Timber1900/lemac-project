@@ -9,6 +9,7 @@ const {
   getOffDays,
   setOffDay,
   deleteOffDay,
+  editUserTarget,
 } = require('./index');
 
 module.exports = {
@@ -18,6 +19,7 @@ module.exports = {
     app.put('/api/schedule/:id', asyncHandler(editEvent));
     app.delete('/api/schedule/:id', asyncHandler(deleteEvents));
     app.post('/api/schedule/targets', asyncHandler(setUserTarget));
+    app.put('/api/schedule/targets/:id', asyncHandler(editUserTarget));
     app.get('/api/schedule/targets', asyncHandler(getUserTargets));
     app.get('/api/schedule/off_days', asyncHandler(getOffDays));
     app.post('/api/schedule/off_days', asyncHandler(setOffDay));

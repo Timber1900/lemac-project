@@ -77,6 +77,20 @@ module.exports = {
       return e.code;
     }
   },
+  editUserTargets: async (database, targetHours, date_start, date_end, id) => {
+    try {
+      await database.execute(
+        'UPDATE `monitor_targets` SET date_start = ?, date_end = ?, target_hours = ? WHERE id = ?',
+        [date_start, date_end, targetHours, id]
+      );
+
+      const [results] = await database.execute('SELECT * FROM monitor_targets WHERE id=?', [id]);
+
+      return results[0];
+    } catch (e) {
+      return e.code;
+    }
+  },
   getOffDays: async (database) => {
     try {
       const [results] = await database.execute('SELECT * FROM `off_days`');
