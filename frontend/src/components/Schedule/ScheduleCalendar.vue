@@ -247,9 +247,7 @@
                       @click="
                         () =>
                           (startIndex =
-                            startIndex + 4 >= userTargets.length
-                              ? userTargets.length - 4
-                              : startIndex + 4)
+                            startIndex + 4 >= userTargets.length ? startIndex : startIndex + 4)
                       "
                       >{{ '>' }}</v-btn
                     >
@@ -310,6 +308,7 @@
         <v-card-actions>
           <v-btn color="primary" @click="finishEditTarget()">Edit target</v-btn>
           <v-btn color="error" @click="closeEditTarget()">Cancel</v-btn>
+          <v-btn class="ml-auto" color="error" @click="deleteTarget()">Delete Target</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -326,6 +325,7 @@ import {
   getUserTargets,
   setUserTarget,
   editUserTarget,
+  deleteUserTarget,
   getOffDays,
   setOffDays,
   deleteOffDay,
@@ -748,6 +748,11 @@ export default {
       return `${dates[2]}-${dates[1]}-${dates[0]}`;
     },
     async createTarget() {
+      if (new Date(this.targetDate[0]) > new Date(this.targetDate[1])) {
+        const temp = this.targetDate[0];
+        this.targetDate[0] = this.targetDate[1];
+        this.targetDate[1] = temp;
+      }
       const data = {
         date_start: this.targetDate[0],
         date_end: this.targetDate[1],
@@ -825,6 +830,11 @@ export default {
       return workHours;
     },
     async finishEditTarget() {
+      if (new Date(this.targetDate[0]) > new Date(this.targetDate[1])) {
+        const temp = this.targetDate[0];
+        this.targetDate[0] = this.targetDate[1];
+        this.targetDate[1] = temp;
+      }
       const data = {
         date_start: this.targetDate[0],
         date_end: this.targetDate[1],
@@ -849,6 +859,11 @@ export default {
       ];
 
       this.targetHours = this.editingTarget.target_hours;
+    },
+    async deleteTarget() {
+      await deleteUserTarget(this.editingTarget.id);
+      this.getUserTargets();
+      this.editTarget = false;
     },
   },
 };

@@ -91,6 +91,16 @@ module.exports = {
       return e.code;
     }
   },
+  deleteTarget: async (database, id) => {
+    try {
+      const [results] = await database.execute('SELECT * FROM monitor_targets WHERE id=?', [id]);
+      if (results.length === 0) return false;
+      await database.execute('DELETE FROM monitor_targets WHERE id = ?', [id]);
+      return true;
+    } catch (e) {
+      console.error(e);
+    }
+  },
   getOffDays: async (database) => {
     try {
       const [results] = await database.execute('SELECT * FROM `off_days`');

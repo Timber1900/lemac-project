@@ -15,6 +15,7 @@ export const updateHour = (id, data) => httpClient.put(`${ENDPOINT}/${id}`, data
 export const getUserTargets = () => httpClient.get(`${ENDPOINT}/targets`);
 export const setUserTarget = (data) => httpClient.post(`${ENDPOINT}/targets`, data);
 export const editUserTarget = (id, data) => httpClient.put(`${ENDPOINT}/targets/${id}`, data);
+export const deleteUserTarget = (id) => httpClient.delete(`${ENDPOINT}/targets/${id}`);
 export const getOffDays = () => httpClient.get(`${ENDPOINT}/off_days`);
 export const setOffDays = (data) => httpClient.post(`${ENDPOINT}/off_days`, data);
 export const deleteOffDay = (id) => httpClient.delete(`${ENDPOINT}/off_days/${id}`);
