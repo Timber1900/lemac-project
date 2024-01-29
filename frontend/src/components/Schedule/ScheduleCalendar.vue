@@ -257,6 +257,19 @@
             </v-form>
           </v-card>
         </v-dialog>
+        <v-dialog v-if="getPermission === 1" v-model="dialogOffDays" max-width="450px" transition="dialog-transition">
+            <template #activator="{ on, attrs }">
+              <v-btn color="secondary" v-bind="attrs" v-on="on">Edit off days</v-btn>
+            </template>
+            <v-date-picker
+            v-model="dates"
+            class="py-3"
+            full-width
+            multiple
+            no-title
+            @input="updateDates()"
+          ></v-date-picker>
+        </v-dialog>
         <span class="inline-block grow">
           <p style="text-align: center; margin: auto">{{ active_user.name }}</p>
           <p style="text-align: center; margin: auto">
@@ -348,10 +361,10 @@ export default {
     switchValue: false,
     events: [],
     colors: {
-      1: '#fbbc04',
-      2: '#eb6212',
+      15: '#fbbc04',
+      16: '#eb6212',
       3: '#93c47d',
-      4: '#ff0000',
+      17: '#ff0000',
       5: '#9900ff',
       6: '#ff00ff',
       7: '#4a86e8',
