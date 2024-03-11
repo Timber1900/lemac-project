@@ -7,7 +7,7 @@
         lab today.
       </v-card-subtitle>
       <v-card-text>
-        <LoginTimePicker @setStart="setStart" @setEnd="setEnd" />
+        <LoginTimePicker @setStart="setStart" @setEnd="setEnd" @setSafeAmount="setSafeAmount" @setEntryNumber="setEntryNumber" @setExitNumber="setExitNumber"/>
       </v-card-text>
       <v-spacer vertical />
       <v-divider horizontal></v-divider>
@@ -32,6 +32,9 @@ export default {
     return {
       start: '',
       end: '',
+      safeAmount: '',
+      entryNumber: '',
+      exitNumber: null
     };
   },
   computed: {
@@ -46,12 +49,33 @@ export default {
     setEnd(value) {
       this.end = value;
     },
+    setSafeAmount(value) {
+      this.safeAmount = value;
+    },
+    setEntryNumber(value) {
+      this.entryNumber = value;
+    },
+    setExitNumber(value) {
+      this.exitNumber = value;
+    },
     async saveTime() {
       const now = new Date().toJSON();
       const entry = now.slice(0, 11) + this.start + ':000Z';
       const exit = now.slice(0, 11) + this.end + ':000Z';
+
+      const saveObj = {
+        entry,
+        exit,
+        entry_number: this.entryNumber,
+        exit_number: this.exitNumber,
+        safe_amount: this.safeAmount,
+        sold_amount: 0,
+      }
+
+      console.log(saveObj)
+
       try {
-        await createHours({ entry: entry, exit: exit });
+        await createHours(saveObj);
         this.$notify({
           type: 'success',
           title: 'Hours saved',

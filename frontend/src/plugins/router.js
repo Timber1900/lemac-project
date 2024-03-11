@@ -10,6 +10,13 @@ import Users from '@/pages/Users.vue';
 import Hours from '@/pages/Hours.vue';
 import Workstations from '@/pages/Workstations.vue';
 import Publications from '@/pages/Publications.vue';
+import Rooms from '@/pages/Rooms.vue';
+import Schedule from '@/pages/Schedule.vue';
+import About from '@/pages/About.vue';
+import Reservations from '@/pages/Reservations.vue';
+import Software from '@/pages/Software.vue';
+import Printing from '@/pages/Printing.vue';
+
 
 Vue.use(VueRouter);
 
@@ -19,6 +26,30 @@ const routes = [
     name: 'home',
     component: Home,
     meta: { title: 'Home', noAuth: true },
+  },
+  {
+    path: '/about',
+    name: 'about',
+    component: About,
+    meta: { title: 'About', noAuth: true },
+  },
+  {
+    path: '/reservations',
+    name: 'reservations',
+    component: Reservations,
+    meta: { title: 'Reservations', noAuth: true },
+  },
+  {
+    path: '/printing',
+    name: 'printing',
+    component: Printing,
+    meta: { title: 'Printing', noAuth: true },
+  },
+  {
+    path: '/software',
+    name: 'software',
+    component: Software,
+    meta: { title: 'Reservations', noAuth: true },
   },
   {
     path: '/login',
@@ -55,6 +86,18 @@ const routes = [
     name: 'publications',
     component: Publications,
     meta: { title: 'Announcements', navBar: NavBar },
+  },
+  {
+    path: '/rooms',
+    name: 'rooms',
+    component: Rooms,
+    meta: { title: 'Room Reservation', navBar: NavBar },
+  },
+  {
+    path: '/schedule',
+    name: 'schedule',
+    component: Schedule,
+    meta: { title: 'Monitor Schedule', navBar: NavBar },
   },
   {
     path: '*',

@@ -1,5 +1,4 @@
 START TRANSACTION;
-
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int PRIMARY KEY AUTO_INCREMENT,
   `ist_id` varchar(12) UNIQUE NOT NULL,
@@ -7,21 +6,42 @@ CREATE TABLE IF NOT EXISTS `users` (
   `active` bool DEFAULT true,
   `admin` bool DEFAULT false
 );
-
 CREATE TABLE IF NOT EXISTS `log_hours` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `user_id` int,
   `entry` datetime,
   `exit` datetime,
-  `time` int
+  `time` int,
+  `entry_number` int,
+  `exit_number` int,
+  `safe_amount` int
 );
-
+CREATE TABLE IF NOT EXISTS `room_hours` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `user_id` int,
+  `entry` datetime,
+  `exit` datetime,
+  `room` varchar(255),
+  `reservation_name` varchar(255),
+  `reservation_id` int,
+  `given_key` boolean DEFAULT false
+);
+CREATE TABLE IF NOT EXISTS `room_events` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `type` varchar(255),
+  `user_id` int,
+  `room_data_id` int,
+  `observations` text DEFAULT "",
+  `created_at` timestamp DEFAULT (now())
+);
 CREATE TABLE IF NOT EXISTS `workstations` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255),
   `capacity` int DEFAULT 0,
   `occupation` int DEFAULT 0,
-  `type` ENUM ('active', 'disabled', 'remote')
+  `type` ENUM ('active', 'disabled', 'remote'),
+  `software`  JSON DEFAULT NULL,
+  `problems` JSON DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `entries` (
@@ -29,17 +49,16 @@ CREATE TABLE IF NOT EXISTS `entries` (
   `workstation_id` int,
   `ist_id` varchar(12),
   `created_at` timestamp DEFAULT (now()),
+  `closed_at` time,
   `active` bool DEFAULT true,
   `observations` text
 );
-
 CREATE TABLE IF NOT EXISTS `notes` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `user_id` int,
   `created_at` timestamp DEFAULT (now()),
   `text` text
 );
-
 CREATE TABLE IF NOT EXISTS `publications` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
@@ -47,11 +66,48 @@ CREATE TABLE IF NOT EXISTS `publications` (
   `created_at` timestamp DEFAULT (now()),
   `active` bool DEFAULT true
 );
+CREATE TABLE IF NOT EXISTS `monitor_schedule` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `user_id` int,
+  `entry` datetime,
+  `exit` datetime,
+  `created_at` timestamp DEFAULT (now())
+);
+CREATE TABLE IF NOT EXISTS `monitor_targets` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `user_id` int,
+  `date_start` date,
+  `date_end` date,
+  `target_hours` int
+);
+CREATE TABLE IF NOT EXISTS `off_days` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `date` date
+);
+CREATE TABLE IF NOT EXISTS `lemac_users` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `mifare_id` varchar(64),
+  `name` varchar(64),
+  `ist_id` int,
+  `email` text,
+  `course` varchar(64),
+  `state` ENUM ('online', 'in_break', 'offline'),
+  `last_modified` timestamp DEFAULT (now())
+);
 
-ALTER TABLE `log_hours` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
-
-ALTER TABLE `entries` ADD FOREIGN KEY (`workstation_id`) REFERENCES `workstations` (`id`) ON DELETE SET NULL;
-
-ALTER TABLE `notes` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
-
+ALTER TABLE `log_hours`
+ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE
+SET NULL;
+ALTER TABLE `room_hours`
+ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE
+SET NULL;
+ALTER TABLE `monitor_schedule`
+ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE
+SET NULL;
+ALTER TABLE `entries`
+ADD FOREIGN KEY (`workstation_id`) REFERENCES `workstations` (`id`) ON DELETE
+SET NULL;
+ALTER TABLE `notes`
+ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE
+SET NULL;
 COMMIT;

@@ -48,6 +48,7 @@ module.exports = {
         name: x.name,
         active: x.active,
         admin: x.admin,
+        current: x.user_id === req.user.id,
       }));
       res.json(response);
       return;

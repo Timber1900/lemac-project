@@ -8,9 +8,9 @@ const {
 
 module.exports = {
   init: (app) => {
-    app.post('/publication', asyncHandler(addPublication));
-    app.get('/publication', asyncHandler(getPublications));
-    app.put('/publication/:id', asyncHandler(updatePublications));
-    app.delete('/publication/:id', asyncHandler(deletePublication));
+    app.post('/api/publication', asyncHandler(addPublication));
+    app.get('/api/publication', asyncHandler(getPublications));
+    app.put('/api/publication/:id', asyncHandler(updatePublications));
+    app.delete('/api/publication/:id', asyncHandler(deletePublication));
   },
 };

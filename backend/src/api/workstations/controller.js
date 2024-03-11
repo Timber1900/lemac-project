@@ -28,9 +28,18 @@ module.exports = {
 
   updateWorkstation: async (database, workstationId, workstation) => {
     try {
+      console.log(JSON.stringify(workstation.softwares));
+
       await database.execute(
-        'UPDATE workstations SET name = ?, capacity = ?, type = ? WHERE id = ?',
-        [workstation.name, workstation.capacity, workstation.type, workstationId]
+        'UPDATE workstations SET name = ?, capacity = ?, type = ?, software = ?, problems = ? WHERE id = ?',
+        [
+          workstation.name,
+          workstation.capacity,
+          workstation.type,
+          JSON.stringify(workstation.softwares),
+          JSON.stringify(workstation.problems),
+          workstationId,
+        ]
       );
       const [results] = await database.execute('SELECT * FROM workstations WHERE id = ?', [
         workstationId,

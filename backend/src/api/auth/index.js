@@ -19,6 +19,23 @@ module.exports = {
     }
     res.json({ user, jwt });
   },
+  getFenixData: async (req, res) => {
+    const { code } = req.query;
+    if (!code) {
+      //no auth code sent by frontend
+      res.sendStatus(400);
+      return;
+    }
+
+    const fenixData = await controller.getFenixData(code);
+
+    if(fenixData) {
+      res.json(fenixData);
+      return;
+    }
+
+    res.sendStatus(500);
+  },
   userProfile: async (req, res) => {
     if (!req.user) return res.sendStatus(401);
 

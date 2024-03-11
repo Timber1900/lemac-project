@@ -16,94 +16,20 @@
           label="Search"
           hide-details
         ></v-text-field>
-        <v-spacer></v-spacer>
-        <v-dialog v-model="dialog" max-width="550px">
-          <template #activator="{ on, attrs }">
-            <v-btn color="secondary" dark class="mb-2" v-bind="attrs" v-on="on"> New User </v-btn>
-          </template>
-          <v-card>
-            <v-form ref="form" lazy-validation @submit.prevent="save">
-              <v-card-title>
-                <span class="headline">{{ formTitle }}</span>
-              </v-card-title>
-              <v-card-text>
-                <v-row>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="editedItem.name"
-                      :rules="[(v) => !!v || 'User name is required']"
-                      label="Name"
-                      required
-                      filled
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="4">
-                    <v-text-field
-                      v-model="editedItem.istId"
-                      :rules="[(v) => !!v || 'IST Id is required']"
-                      label="Id"
-                      required
-                      filled
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="4">
-                    <v-select
-                      v-model="editedItem.admin"
-                      label="Role"
-                      :items="roles"
-                      filled
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="4">
-                    <v-select
-                      v-model="editedItem.active"
-                      label="State"
-                      :items="states"
-                      filled
-                    ></v-select>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="primary" text @click="close"> Cancel </v-btn>
-                <v-btn color="primary" text @click="save"> Save </v-btn>
-              </v-card-actions>
-            </v-form>
-          </v-card>
-        </v-dialog>
-        <v-dialog v-model="dialogDelete" max-width="500px">
-          <v-card>
-            <v-card-title class="headline">Are you sure you want to delete this item?</v-card-title>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="primary" text @click="closeDelete">Cancel</v-btn>
-              <v-btn color="error" text @click="deleteItemConfirm">OK</v-btn>
-              <v-spacer></v-spacer>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
       </v-toolbar>
     </template>
-    <template #[`item.actions`]="{ item }">
-      <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-      <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
-    </template>
-    <template #[`item.admin`]="{ item }">
-      <v-chip :color="roleColors[item.admin]" dark class="capitalized">
-        {{ (roles.find((v) => v.value == item.admin) || {}).text }}
+    <template #[`item.state`]="{ item }">
+      <v-chip :color="(states.find(v => v.value === item.state).color)" dark class="capitalized">
+        {{ (states.find(v => v.value === item.state)).text }}
       </v-chip>
     </template>
-    <template #[`item.active`]="{ item }">
-      <v-chip :color="stateColors[item.active]" dark class="capitalized">
-        {{ (states.find((v) => v.value == item.active) || {}).text }}
-      </v-chip>
+    <template #[`item.last_modified`]="{ item }">
+      {{ getTimeDiff(item.last_modified) }}
     </template>
   </v-data-table>
 </template>
 
 <script>
-import { createUser, deleteUser, updateUser } from '@/api/user.api';
 
 export default {
   name: 'UserTable',
@@ -129,120 +55,52 @@ export default {
     search: '',
     users: [],
     headers: [
-      { text: 'Member', value: 'name' },
-      { text: 'IST Id', value: 'istId' },
-      { text: 'Role', value: 'admin', filterable: false },
-      { text: 'State', value: 'active', filterable: false },
-      { text: 'Actions', value: 'actions', sortable: false, filterable: false },
+      { text: 'User', value: 'name' },
+      { text: 'Workstation', value: 'workstation' },
+      { text: 'IST Id', value: 'ist_id' },
+      { text: 'Email', value: 'email', filterable: false },
+      { text: 'Course', value: 'course' },
+      { text: 'State', value: 'state' },
+      { text: 'Mifare ID', value: 'mifare_id', sortable: false, filterable: false },
+      { text: 'Time since last action', value: 'last_modified', sortable: false, filterable: false },
     ],
-    editedIndex: -1,
-    editedItem: {
-      name: '',
-    },
     defaultItem: {
       name: '',
-      istId: '',
-      admin: '',
-      active: '',
+      ist_id: '',
+      email: '',
+      course: '',
+      state: '',
+      mifare_id: '',
     },
-    roleColors: ['yellow darken-4', 'blue'],
-    stateColors: ['grey', 'green'],
-    roles: [
-      { text: 'Admin', value: 1 },
-      { text: 'User', value: 0 },
-    ],
     states: [
-      { text: 'Active', value: 1 },
-      { text: 'Inactive', value: 0 },
+      { text: 'Online', value: "online", color: 'blue' },
+      { text: 'Offline', value: "offline", color: 'gray' },
+      { text: 'In-Break', value: "in_break", color: 'orange' },
     ],
   }),
-
-  computed: {
-    formTitle() {
-      return this.editedIndex === -1 ? 'New User' : 'Edit User';
-    },
-  },
-
-  watch: {
-    dialog(val) {
-      val || this.close();
-    },
-    dialogDelete(val) {
-      val || this.closeDelete();
-    },
-  },
-
   mounted() {
     this.users = this.members;
   },
   methods: {
-    editItem(item) {
-      this.editedIndex = this.users.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
-    },
+    getTimeDiff(sqlDateString) {
+      // Assuming the SQL date is stored as a string in ISO format, like "2023-05-05T13:48:35.000Z"
+      const sqlDate = new Date(sqlDateString);
+      const currentDate = new Date();
 
-    deleteItem(item) {
-      this.editedIndex = this.users.indexOf(item);
-      this.dialogDelete = true;
-    },
+      // Get the timezone offset difference between the two dates in minutes
+      const timezoneOffsetDiff = -currentDate.getTimezoneOffset();
 
-    async deleteItemConfirm() {
-      try {
-        await deleteUser(this.users[this.editedIndex].id);
-        const deleted = this.users.splice(this.editedIndex, 1);
-        this.$notify({
-          type: 'success',
-          title: 'User deleted',
-          text: `You have deleted user ${deleted[0].name}`,
-        });
-      } finally {
-        this.closeDelete();
-      }
-    },
+      // Calculate the time difference in milliseconds, adjusted for the timezone offset difference
+      const diff = Math.abs(currentDate.getTime() - sqlDate.getTime() + (timezoneOffsetDiff * 60 * 1000));
 
-    close() {
-      this.dialog = false;
-      this.$refs.form.resetValidation();
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
-    },
+      // Convert the time difference to hours, minutes, and seconds
+      const hours = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(1, "0");
+      const minutes = Math.floor((diff / (1000 * 60)) % 60).toString().padStart(2, "0");
+      const seconds = Math.floor((diff / 1000) % 60).toString().padStart(2, "0");
 
-    closeDelete() {
-      this.dialogDelete = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
-    },
+      return `${hours}:${minutes}:${seconds}`;
 
-    async save() {
-      // Don't save if validation is unsuccessful
-      if (!this.$refs.form.validate()) return;
-      try {
-        if (this.editedIndex > -1) {
-          const response = await updateUser(this.users[this.editedIndex].id, this.editedItem);
-          this.users.splice(this.editedIndex, 1, response.data);
-          this.$notify({
-            type: 'success',
-            title: 'User updated',
-            text: `You have updated user ${response.data.name}`,
-          });
-        } else {
-          const response = await createUser(this.editedItem);
-          this.users.push(response.data);
-          this.$notify({
-            type: 'success',
-            title: 'User created',
-            text: `You have created user ${response.data.name}`,
-          });
-        }
-      } finally {
-        this.close();
-      }
-    },
-  },
+    }
+  }
 };
 </script>

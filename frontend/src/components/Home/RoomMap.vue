@@ -1,257 +1,220 @@
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440.19 409.01">
-    <defs>
-      <pattern
-        id="a_part"
-        patternUnits="userSpaceOnUse"
-        width="30"
-        height="30"
-        patternTransform="rotate(45)"
-      >
-        <rect x="0" y="0" width="79" height="67" fill="#ffefd3" />
-        <line x1="0" y="0" x2="0" y2="30" stroke="#B7E1CD" stroke-width="25" />
-      </pattern>
-      <pattern
-        id="b_part"
-        patternUnits="userSpaceOnUse"
-        width="30"
-        height="30"
-        patternTransform="rotate(45)"
-      >
-        <rect x="0" y="0" width="79" height="67" fill="#fe9900" />
-        <line x1="0" y="0" x2="0" y2="30" stroke="#B7E1CD" stroke-width="20" />
-      </pattern>
-      <pattern
-        id="e_part"
-        patternUnits="userSpaceOnUse"
-        width="30"
-        height="30"
-        patternTransform="rotate(45)"
-      >
-        <rect x="0" y="0" width="79" height="67" fill="#f3f3f3" />
-        <line x1="0" y="0" x2="0" y2="30" stroke="#B7E1CD" stroke-width="20" />
-      </pattern>
-    </defs>
-    <title>LEMAC-planta</title>
-    <g>
-      <rect ref="LTI - 69" class="a" x="0.38" y="0.51" width="79" height="67" />
-      <text class="b" transform="translate(14.05 40.01)">LTI - 69</text>
-      <rect ref="LTI - 66" class="a" x="80.38" y="0.51" width="79" height="67" />
-      <text class="b" transform="translate(94.05 40.01)">LTI - 66</text>
-      <rect ref="LTI - 68" class="a" x="0.38" y="68.01" width="79" height="67" />
-      <text class="b" transform="translate(14.05 107.01)">LTI - 68</text>
-      <rect ref="LTI - 67" class="d" x="80.38" y="68.01" width="79" height="67" />
-      <text class="b" transform="translate(94.05 107.01)">LTI - 67</text>
-      <rect x="77.87" y="0.01" width="4" height="136" />
-    </g>
-    <g>
-      <rect ref="LTI - 65" class="a" x="240.38" y="0.51" width="79" height="67" />
-      <text class="b" transform="translate(254.05 40.01)">LTI - 65</text>
-      <rect ref="LTI - 62" class="d" x="320.38" y="0.51" width="79" height="67" />
-      <text class="b" transform="translate(334.05 40.01)">LTI - 62</text>
-      <rect ref="LTI - 64" class="a" x="240.38" y="68.01" width="79" height="67" />
-      <text class="b" transform="translate(254.05 107.01)">LTI - 64</text>
-      <rect ref="LTI - 63" class="a" x="320.38" y="68.01" width="79" height="67" />
-      <text class="b" transform="translate(334.05 107.01)">LTI - 63</text>
-      <rect x="317.87" y="0.01" width="4" height="136" />
-    </g>
-    <g>
-      <rect ref="LTI - 61" class="a" x="480.38" y="0.51" width="79" height="67" />
-      <text class="b" transform="translate(494.05 40.01)">LTI - 61</text>
-      <rect ref="LTI - 58" class="a" x="560.38" y="0.51" width="79" height="67" />
-      <text class="b" transform="translate(574.05 40.01)">LTI - 58</text>
-      <rect ref="LTI - 60" class="d" x="480.38" y="68.01" width="79" height="67" />
-      <text class="b" transform="translate(494.05 107.01)">LTI - 60</text>
-      <rect ref="LTI - 59" class="a" x="560.38" y="68.01" width="79" height="67" />
-      <text class="b" transform="translate(574.05 107.01)">LTI - 59</text>
-      <rect x="557.87" y="0.01" width="4" height="136" />
-    </g>
-    <g>
-      <rect ref="LTI - 57" class="d" x="720.37" y="0.51" width="79" height="67" />
-      <text class="b" transform="translate(734.05 40.01)">LTI - 57</text>
-      <rect ref="LTI - 54" class="a" x="800.38" y="0.51" width="79" height="67" />
-      <text class="b" transform="translate(814.05 40.01)">LTI - 54</text>
-      <rect ref="LTI - 56" class="a" x="720.37" y="68.01" width="79" height="67" />
-      <text class="b" transform="translate(734.05 107.01)">LTI - 56</text>
-      <rect ref="LTI - 55" class="a" x="800.38" y="68.01" width="79" height="67" />
-      <text class="b" transform="translate(814.05 107.01)">LTI - 55</text>
-      <rect x="797.87" y="0.01" width="4" height="136" />
-    </g>
-    <g>
-      <rect ref="LTI - 53" class="d" x="960.38" y="0.51" width="79" height="67" />
-      <text class="b" transform="translate(974.05 40.01)">LTI - 53</text>
-      <rect ref="LTI - 50" class="a" x="1040.38" y="0.51" width="79" height="67" />
-      <text class="b" transform="translate(1054.05 40.01)">LTI - 50</text>
-      <rect ref="LTI - 52" class="d" x="960.38" y="68.01" width="79" height="67" />
-      <text class="b" transform="translate(974.05 107.01)">LTI - 52</text>
-      <rect ref="LTI - 51" class="a" x="1040.38" y="68.01" width="79" height="67" />
-      <text class="b" transform="translate(1054.05 107.01)">LTI - 51</text>
-    </g>
-    <g>
-      <rect ref="LTI - 71" class="d" x="0.81" y="272.38" width="79" height="67" />
-      <text class="b" transform="translate(14.05 312.01)">LTI - 71</text>
-      <rect ref="LTI - 72" class="a" x="80.81" y="272.38" width="79" height="67" />
-      <text class="b" transform="translate(94.05 312.01)">LTI - 72</text>
-      <rect ref="LTI - 70" class="a" x="0.81" y="339.88" width="79" height="67" />
-      <text class="b" transform="translate(14.05 379.01)">LTI - 70</text>
-      <rect ref="LTI - 73" class="a" x="80.81" y="339.88" width="79" height="67" />
-      <text class="b" transform="translate(94.05 379.01)">LTI - 73</text>
-      <rect x="78.31" y="271.88" width="4" height="136" />
-    </g>
-    <g>
-      <rect ref="LTI - 75" class="a" x="240.81" y="272.38" width="79" height="67" />
-      <text class="b" transform="translate(254.05 312.01)">LTI - 75</text>
-      <rect ref="LTI - 76" class="a" x="320.81" y="272.38" width="79" height="67" />
-      <text class="b" transform="translate(334.05 312.01)">LTI - 76</text>
-      <rect ref="LTI - 74" class="a" x="240.81" y="339.88" width="79" height="67" />
-      <text class="b" transform="translate(254.05 379.01)">LTI - 74</text>
-      <rect ref="LTI - 77" class="a" x="320.81" y="339.88" width="79" height="67" />
-      <text class="b" transform="translate(334.05 379.01)">LTI - 77</text>
-      <rect x="318.31" y="271.88" width="4" height="136" />
-    </g>
-    <g>
-      <rect ref="LTI - 45" class="d" x="1280.81" y="272.38" width="79" height="67" />
-      <text class="b" transform="translate(1294.05 312.01)">LTI - 45</text>
-      <rect ref="LTI - 43" class="d" x="1360.81" y="272.38" width="79" height="67" />
-      <text class="b" transform="translate(1374.05 312.01)">LTI - 43</text>
-      <rect ref="LTI - 46" class="d" x="1280.81" y="339.88" width="79" height="67" />
-      <text class="b" transform="translate(1293.05 379.01)">LTI - 46</text>
-      <rect ref="LTI - 44" class="d" x="1360.81" y="339.88" width="79" height="67" />
-      <text class="b" transform="translate(1374.05 379.01)">LTI - 44</text>
-    </g>
-    <g>
-      <rect ref="LTI - 49" class="a" x="1279.81" y="0.38" width="79" height="67" />
-      <text class="b" transform="translate(1293.05 40.01)">LTI - 49</text>
-      <rect ref="LTI - 40" class="a" x="1359.81" y="0.38" width="79" height="67" />
-      <text class="b" transform="translate(1373.05 40.01)">LTI - 40</text>
-      <rect ref="LTI - 48" class="a" x="1279.81" y="67.88" width="79" height="67" />
-      <text class="b" transform="translate(1293.05 107.01)">LTI - 48</text>
-      <rect ref="R - 41" class="e" x="1359.81" y="67.88" width="79" height="67" />
-      <text class="b" transform="translate(1378.41 107.01)">R - 41</text>
-    </g>
-    <rect ref="LTI - 47" class="a" x="1279.87" y="135.01" width="79" height="67" />
-    <text class="b" transform="translate(1293.05 175.01)">LTI - 47</text>
-    <rect ref="LTI - 42" class="a" x="1359.87" y="135.01" width="79" height="67" />
-    <text class="b" transform="translate(1373.05 175.01)">LTI - 42</text>
-    <rect x="1197.38" y="0.01" width="4" height="204" />
-    <rect x="1197.38" y="272.51" width="4" height="136" />
-    <rect class="f" x="559.38" y="271.51" width="480" height="136" />
-    <text class="g" transform="translate(717.74 354.75)">Monitor</text>
-  </svg>
+  <div class="w-full h-full">
+    <OfflineModal v-if="modelType == 'offline'" :close="close" :entryStations="entryStations" :select="select" :userData="userData" :entryModal="entryModal"/>
+    <OnlineModal v-if="modelType == 'online'" :close="close" :entryStations="entryStations" :select="select" :userData="userData" :entryModal="entryModal"/>
+    <InBreak v-if="modelType == 'in_break'" :close="close" :entryStations="entryStations" :select="select" :userData="userData" :entryModal="entryModal"/>
+    <CreateUser v-if="modelType == 'create_user'" :close="close" :entryStations="entryStations" :select="select" :mifare_id="mifare_id" :entryModal="entryModal"/>
+    <div class="grid overflow-hidden lg:grid-rows-8 grid-rows-9 grid-cols-18">
+      <div class="relative col-span-6 col-start-8 row-span-2 row-start-5 border-2 border-[#a5a5a5] flex justify-center items-center text-4xl font-semibold bg-whit">
+        Monitor
+        <div class="absolute my-auto right-[-48px]">
+          <v-icon size="48" color="black">
+            mdi-account
+          </v-icon>
+        </div>
+      </div>
+      <div :class=[val.class] v-for="(val) in stations"> {{val.number !== -1 ? val.number : ''}}</div>
+      <div class="row-span-3 col-span-18 xl:row-span-2">
+        <div class="grid grid-rows-1 grid-cols-18 border border-[#a5a5a5] my-4 py-4">
+          <div class="flex items-center justify-center col-span-2 col-start-1 px-2 text-xs text-center lg:text-base">
+            Legenda:
+          </div>
+          <div class="col-start-3 base pc-normal">
+            LTI-PC
+          </div>
+          <div class="flex items-center justify-center col-span-3 col-start-4 px-2 text-xs text-center lg:text-base">
+            Computador Livre para estudo sem portátil
+          </div>
+          <div class="col-start-7 base pc-laptop">
+            LTI-PC
+          </div>
+          <div class="flex items-center justify-center col-span-3 col-start-8 px-2 text-xs text-center lg:text-base">
+            Computador Livre para estudo com portátil
+          </div>
+          <div class="col-start-11 base pc-active">
+            LTI-PC
+          </div>
+          <div class="flex items-center justify-center col-span-3 col-start-12 px-2 text-xs text-center lg:text-base">
+            Computador em uso
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center justify-start w-full px-8 py-4">
+      <div class="mr-2 text-lg font-semibold lg:text-4xl">
+        Avisos:
+      </div>
+      <div class="flex flex-col items-center justify-start h-full grow">
+        <div v-for="(pub) in publications" class="text-sm whitespace-pre-wrap lg:text-lg">
+          <b>{{pub.title}}</b> : {{pub.text}}
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import { getWorkstations } from '@/api/workstations.api';
+import { getWorkstations} from '@/api/workstations.api';
+import { getPublications} from '@/api/publications.api';
+import { getLemacUser } from '@/api/lemacUsers.api';
+import OfflineModal from "@/components/Home/EntranceModals/OfflineModal.vue";
+import OnlineModal from "@/components/Home/EntranceModals/Online.vue";
+import CreateUser from "@/components/Home/EntranceModals/CreateUser.vue";
+import InBreak from "@/components/Home/EntranceModals/InBreak.vue";
+import { addEntry, getEntries, updateEntry } from '@/api/entries.api';
+
 export default {
   name: 'RoomMap',
   async mounted() {
     await this.update();
     setInterval(this.update, 30000);
+    this.socket = new WebSocket(process.env.VUE_APP_BASE_URL_WS || 'ws://localhost:5000');
+
+    this.socket.onopen = (e) => {
+      this.socket.send("Socket Open");
+    };
+
+
+    const keepSocketAlive = () => {
+      try {
+        this.socket.send("ping");
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    setInterval(keepSocketAlive, 1000);
+
+    this.socket.addEventListener('message', async (event) => {
+      const mifareId = event.data;
+      if(mifareId === "pong") return
+
+      try {
+        this.userData = (await getLemacUser(mifareId)).data;
+        this.modelType = this.userData.state;
+      } catch (error) {
+        console.log("test")
+        this.mifare_id = mifareId;
+        this.modelType = "create_user";
+      }
+
+      this.entryModal = true;
+      this.entryStations = JSON.parse(JSON.stringify(this.stations));
+    });
+    this.socket.addEventListener('close', (event) => {
+      console.log(event);
+      setTimeout(() => {}, 10000);
+      this.socket = new WebSocket(process.env.VUE_APP_BASE_URL_WS || 'ws://localhost:5000');
+    })
   },
+
+  destroyed() {
+    console.log("Test")
+    this.socket.close()
+  },
+  components: {
+    OfflineModal,
+    OnlineModal,
+    CreateUser,
+    InBreak
+  },
+  data: () => ({
+    order: [
+      30, 28, -1, 26, 24, -1, 22, 20, -1, 18, 16, -1, 14, 12, -1, -1, 10, 7, 29, 27, -1, 25, 23, -1, 21, 19, -1, 17, 15, -1, 13, 11, -1, -1, 9, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 8, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 31, 33, -1, 35, 37, -1, -1, -1, -1, -1, 4, 2, 32, 34, -1, 36, 38, -1, -1, -1, -1, -1, 3, 1
+    ],
+    classData: ['l', 'r', '', 'l', 'r', '', 'l', 'r', '', 'l', 'r', '', '', '', 'l', 'r', '', '', 'l', 'r', '', 'l', 'r', '', 'l', 'r', '', 'l', 'r', '', '', '', 'l', 'r', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'l', 'r', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'l', 'r', '', '', '', '', '', '', 'l', 'r', '', '', 'l', 'r', '', '', '', '', '', '', 'l', 'r', '', ''],
+    stations: '',
+    publications: '',
+    message: "WAITING",
+    entryModal: null,
+    entrySelected: null,
+    entryStations: '',
+    entryId: null,
+    socket: null,
+    modelType: "offline",
+    userData: null,
+    mifare_id: null
+  }),
   methods: {
     async update() {
       const { data } = await getWorkstations();
-      data.forEach((x) => {
-        if (x.occupation > 0) {
-          if (x.occupation == x.capacity) {
-            this.$refs[x.name].classList.add('active');
-          } else if (this.$refs[x.name].classList.contains('a')) {
-            this.$refs[x.name].classList.remove('a');
-            this.$refs[x.name].classList.add('a_part');
-          } else if (this.$refs[x.name].classList.contains('d')) {
-            this.$refs[x.name].classList.remove('d');
-            this.$refs[x.name].classList.add('b_part');
-          } else if (this.$refs[x.name].classList.contains('e')) {
-            this.$refs[x.name].classList.remove('e');
-            this.$refs[x.name].classList.add('e_part');
-          } else if (this.$refs[x.name].classList.contains('active')) {
-            this.$refs[x.name].classList.remove('active');
-          }
-        } else {
-          if (this.$refs[x.name].classList.contains('active')) {
-            this.$refs[x.name].classList.remove('active');
-          }
-          if (this.$refs[x.name].classList.contains('a_part')) {
-            this.$refs[x.name].classList.remove('a_part');
-            this.$refs[x.name].classList.add('a');
-          } else if (this.$refs[x.name].classList.contains('b_part')) {
-            this.$refs[x.name].classList.remove('b_part');
-            this.$refs[x.name].classList.add('d');
-          } else if (this.$refs[x.name].classList.contains('e_part')) {
-            this.$refs[x.name].classList.remove('e_part');
-            this.$refs[x.name].classList.add('e');
-          }
+
+      this.stations = this.order.map((val, index) => {
+        const station = data.find(station => station.name.match(/\d+/)[0] == val );
+        const returnVal = {
+          number: station ? station.name : '',
+          class: 'base',
+          id: station ? station.id : '',
+          capacity: station ? station.capacity : '',
+          occupation: station ? station.occupation : ''
         }
-      });
+
+        if(val != -1) returnVal.class = 'base pc-normal'
+        if(!station) return returnVal
+
+        if(station.capacity == 1) returnVal.class = 'base pc-laptop'
+        if(station.capacity == 2 && Math.abs(station.occupation - station.capacity) == 1) returnVal.class += ' pc-semiactive'
+        if(Math.abs(station.occupation - station.capacity) == 0) returnVal.class = 'base pc-active'
+
+        return returnVal
+      })
+
+      this.stations = this.stations.map((val, index) => {
+        const returnVal = val;
+        returnVal.class = this.classData[index] == 'l' ? `!border-r-2 !border-r-black ${returnVal.class}` : this.classData[index] == 'r' ? `!border-l-2 !border-l-black ${returnVal.class}` : `${returnVal.class}`
+
+        return returnVal
+      })
+
+      const publicationData = (await getPublications()).data;
+      this.publications = publicationData.filter(val => val.active)
     },
+    async close(action) {
+      if(action == "save") {
+          const { data } = await addEntry({
+            istId: 'ist1' + this.userData.ist_id,
+            workstationId: this.entrySelected.id,
+          });
+          this.$notify({
+            type: 'success',
+            title: 'Entry created',
+            text: `You have created an entry for workstation ${data.workstation.name}`,
+          });
+      } else if(action == "close") {
+        const entrie = ((await getEntries()).data.filter(val => val.closedAt === null && val.istId === 'ist1' + this.userData.ist_id))[0];
+        try {
+          await updateEntry(entrie.id, { active: 0 });
+          this.$notify({
+            type: 'success',
+            title: 'Entry closed',
+            text: `You have closed entry the entry on ${closed[0].workstation.name}`,
+          });
+        } catch (error) {
+
+        }
+      }
+      this.update();
+      this.entryModal = false;
+    },
+    select(val) {
+      const index = this.entryStations.indexOf(val);
+      this.entryStations = JSON.parse(JSON.stringify(this.stations));
+
+      if(this.entryStations[index].number) {
+        if (this.entryStations[index].capacity - this.entryStations[index].occupation === 0) {
+          this.entrySelected = -1;
+          return
+        }
+
+        const classes = this.entryStations[index].class.split(" ");
+        classes[classes.length - 1] = "pc-selected";
+
+        this.entryStations[index].class = classes.reduce((val, acc) => `${acc} ${val}`, "");
+        this.entrySelected = this.entryStations[index];
+      } else {
+        this.entrySelected = -1;
+      };
+    },
+
   },
 };
 </script>
-
-<style scoped>
-.a {
-  fill: #ffefd3;
-}
-
-.a,
-.d,
-.e {
-  stroke: #ada495;
-  stroke-width: 0.75px;
-}
-
-.a,
-.d,
-.e,
-.f {
-  stroke-miterlimit: 10;
-}
-
-.b {
-  font-size: 17.5px;
-}
-
-.b,
-.g {
-  font-family: 'Roboto', sans-serif;
-}
-
-.d {
-  fill: #fe9900;
-}
-
-.e {
-  fill: #f3f3f3;
-}
-
-.f {
-  fill: #e5e5e5;
-  stroke: #a4a4a4;
-  stroke-width: 3px;
-}
-
-.g {
-  font-size: 50px;
-}
-
-.a_part {
-  fill: url(#a_part);
-  stroke: #ada495;
-  stroke-width: 0.75px;
-}
-.b_part {
-  fill: url(#b_part);
-  stroke: #ada495;
-  stroke-width: 0.75px;
-}
-.e_part {
-  fill: url(#e_part);
-  stroke: #ada495;
-  stroke-width: 0.75px;
-}
-.active {
-  fill: #b7e1cd;
-  stroke: #ada495;
-  stroke-width: 0.75px;
-}
-</style>

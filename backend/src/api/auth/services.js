@@ -7,6 +7,9 @@ const FENIX_BASE_URL = process.env.FENIX_BASE_URL || 'https://fenix.tecnico.ulis
 const FENIX_CLIENT_ID = process.env.FENIX_CLIENT_ID || '';
 const FENIX_CLIENT_SECRET = process.env.FENIX_CLIENT_SECRET || '';
 const FENIX_REDIRECT_URL = process.env.FENIX_REDIRECT_URL || '';
+const FENIX_CLIENT_ID_SOFTWARE = process.env.FENIX_CLIENT_ID_SOFTWARE || '';
+const FENIX_CLIENT_SECRET_SOFTWARE = process.env.FENIX_CLIENT_SECRET_SOFTWARE || '';
+const FENIX_REDIRECT_URL_SOFTWARE = process.env.FENIX_REDIRECT_URL_SOFTWARE || '';
 
 module.exports = {
   /* createJWT creates the JWT from the user data to send to frontend*/
@@ -35,6 +38,40 @@ module.exports = {
     }
   },
 
+  loginFenixData: async (code) => {
+    try {
+      const { data: response } = await axios.post(
+        `${FENIX_BASE_URL}oauth/access_token?client_id=${encodeURIComponent(
+          FENIX_CLIENT_ID_SOFTWARE
+        )}&client_secret=${encodeURIComponent(
+          FENIX_CLIENT_SECRET_SOFTWARE
+        )}&redirect_uri=${encodeURIComponent(
+          FENIX_REDIRECT_URL_SOFTWARE
+        )}&code=${encodeURIComponent(code)}&grant_type=authorization_code`
+      );
+      return response.access_token;
+    } catch (e) {
+      console.log(e)
+      return;
+    }
+  },
+  loginFenix: async (code) => {
+    try {
+      const { data: response } = await axios.post(
+        `${FENIX_BASE_URL}oauth/access_token?client_id=${encodeURIComponent(
+          FENIX_CLIENT_ID
+        )}&client_secret=${encodeURIComponent(
+          FENIX_CLIENT_SECRET
+        )}&redirect_uri=${encodeURIComponent(FENIX_REDIRECT_URL)}&code=${encodeURIComponent(
+          code
+        )}&grant_type=authorization_code`
+      );
+      return response.access_token;
+    } catch (e) {
+      return;
+    }
+  },
+
   /* get request to fenix api to get the user id */
   returnIstId: async (access_token) => {
     try {
@@ -44,6 +81,23 @@ module.exports = {
         },
       });
       return person.username;
+    } catch (e) {
+      console.error(e);
+      return;
+    }
+  },
+
+  returnIstData: async (access_token) => {
+    try {
+      const result = await axios.get(`${FENIX_BASE_URL}api/fenix/v1/person`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+
+      console.log(result);
+
+      return result.data;
     } catch (e) {
       console.error(e);
       return;

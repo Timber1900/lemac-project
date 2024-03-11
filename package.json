@@ -24,5 +24,9 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.8.0",
     "prettier": "2.2.1"
+  },
+  "dependencies": {
+    "file-saver": "^2.0.5",
+    "vue-ics": "^0.1.4"
   }
 }

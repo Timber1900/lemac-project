@@ -7,7 +7,7 @@ module.exports = {
       ]);
 
       const [results] = await database.execute(
-        'SELECT entries.*, workstations.name FROM entries LEFT JOIN workstations ON entries.workstation_id = workstations.id WHERE entries.id=LAST_INSERT_ID()'
+        'SELECT entries.*, workstations.name FROM `entries` LEFT JOIN workstations ON entries.workstation_id = workstations.id WHERE entries.id=LAST_INSERT_ID()'
       );
 
       return results[0];
@@ -16,11 +16,13 @@ module.exports = {
       return;
     }
   },
-  updateEntrieObservation: async (database, entrieId, observation) => {
+  updateEntrieObservation: async (database, entrieId, observation, worksationId, istId) => {
     //update observation only
     try {
-      await database.execute('UPDATE entries SET observations = ? WHERE id = ?', [
+      await database.execute('UPDATE entries SET observations = ?, workstation_id = ?, ist_id = ? WHERE id = ?', [
         observation,
+        worksationId,
+        istId,
         entrieId,
       ]);
       const [
@@ -36,7 +38,7 @@ module.exports = {
   },
   updateEntrie: async (database, entrieId) => {
     try {
-      await database.execute('UPDATE entries SET active = 0 WHERE id = ?', [entrieId]);
+      await database.execute('UPDATE entries SET active = 0, closed_at = now() WHERE id = ?', [entrieId]);
       const [
         results,
       ] = await database.execute(

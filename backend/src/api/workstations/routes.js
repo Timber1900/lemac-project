@@ -8,9 +8,9 @@ const {
 
 module.exports = {
   init: (app) => {
-    app.post('/workstations', asyncHandler(addWorkstation));
-    app.get('/workstations', asyncHandler(getWorkstations));
-    app.put('/workstations/:id', asyncHandler(updateWorkstation));
-    app.delete('/workstations/:id', asyncHandler(deleteWorkstation));
+    app.post('/api/workstations', asyncHandler(addWorkstation));
+    app.get('/api/workstations', asyncHandler(getWorkstations));
+    app.put('/api/workstations/:id', asyncHandler(updateWorkstation));
+    app.delete('/api/workstations/:id', asyncHandler(deleteWorkstation));
   },
 };

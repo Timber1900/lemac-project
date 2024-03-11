@@ -28,6 +28,8 @@ module.exports = {
         capacity: data.capacity,
         type: data.type,
         occupation: data.occupation,
+        softwares: JSON.parse(data.software) ?? [],
+        problems: JSON.parse(data.problems) ?? [],
       };
 
       res.json(response);
@@ -49,6 +51,8 @@ module.exports = {
         capacity: x.capacity,
         type: x.type,
         occupation: x.occupation,
+        softwares: JSON.parse(x.software) ?? [],
+        problems: JSON.parse(x.problems) ?? [],
       }));
       res.json(response);
       return;
@@ -59,11 +63,19 @@ module.exports = {
   },
 
   updateWorkstation: async (req, res) => {
-    if (!req.user || !req.user.admin) {
+    if (!req.user) {
       res.sendStatus(401);
       return;
     }
-    if (req.body && req.body.name && types.find((x) => x === req.body.type)) {
+
+    if (
+      req.body &&
+      req.body.name &&
+      types.find((x) => x === req.body.type) &&
+      req.body.softwares &&
+      req.body.problems
+    ) {
+      console.log(req.body);
       const data = await controller.updateWorkstation(req.db, req.params.id, req.body);
       //duplicated entry
       if (data === 'ER_DUP_ENTRY') {
@@ -81,6 +93,8 @@ module.exports = {
         occupation: data.occupation,
         capacity: data.capacity,
         type: data.type,
+        softwares: JSON.parse(data.software) ?? [],
+        problems: JSON.parse(data.problems) ?? [],
       };
 
       res.json(response);

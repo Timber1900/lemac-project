@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.base {
+  @apply flex items-center justify-center aspect-square lg:text-base text-xs
+}
+
+.pc-normal {
+  @apply border bg-[#fff2cc] border-[#a5a5a5]
+}
+
+.pc-laptop {
+  @apply border bg-[#ff9900] border-[#a5a5a5]
+}
+
+.pc-semiactive {
+  @apply border bg-stripes bg-repeat
+}
+
+.pc-active {
+  @apply border bg-[#b7e1cd] border-[#a5a5a5]
+}
+
+.pc-selected {
+  @apply border bg-[#49caf9] border-[#a5a5a5]
+}

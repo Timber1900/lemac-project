@@ -22,7 +22,6 @@
             v-if="getPermission >= (route.permission || 0)"
             :to="route.link"
             text
-            color="primary"
             class="mb-1"
             @click.stop="drawer = !drawer"
           >
@@ -76,22 +75,30 @@ export default {
           link: '/hours',
         },
         {
+          text: "Monitor's Schedule",
+          icon: 'mdi-calendar-clock',
+          link: '/schedule',
+        },
+        {
           text: 'User Management',
           icon: 'mdi-account-multiple',
           link: '/users',
-          permission: 1,
         },
         {
           text: 'Workstations',
           icon: 'mdi-desktop-classic',
           link: '/workstations',
-          permission: 1,
         },
         {
           text: 'Announcements',
           icon: 'mdi-bullhorn-variant',
           link: '/publications',
           permission: 1,
+        },
+        {
+          text: 'Room Management',
+          icon: 'mdi-table-chair',
+          link: '/rooms',
         },
       ],
     };
@@ -113,6 +120,7 @@ export default {
       localStorage.removeItem('token');
       this.logoutUser();
       this.$router.push('/');
+      window.open('https://fenix.tecnico.ulisboa.pt/logout', '_blank').focus();
     },
 
     ...mapActions('user', ['logoutUser']),

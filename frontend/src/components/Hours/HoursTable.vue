@@ -106,6 +106,81 @@
                       </v-menu>
                     </v-col>
                   </v-row>
+                  <v-row>
+                    <v-text-field
+                      v-model="editedItem.entry_number"
+                      label="Entry ticket"
+                      prepend-icon="mdi-ticket-confirmation"
+                      required
+                      :rules="[() => !!editedItem.entry_number || 'This field is required']"
+                    ></v-text-field>
+                    <v-spacer />
+                    <v-text-field
+                      v-model="editedItem.exit_number"
+                      label="Exit ticket"
+                      prepend-icon="mdi-ticket-confirmation"
+                    ></v-text-field>
+                    <v-spacer />
+                    <v-text-field
+                      v-model="editedItem.safe_amount"
+                      label="Money in safe"
+                      prepend-icon="mdi-safe-square-outline"
+                      required
+                      :rules="[() => !!editedItem.safe_amount || 'This field is required']"
+                    ></v-text-field>
+                  </v-row>
+                  <v-row v-if="getPermission === 1">
+                    <v-menu
+                      ref="menu4"
+                      v-model="menu4"
+                      :close-on-content-click="false"
+                      :close-on-click="false"
+                      :nudge-right="40"
+                      :return-value.sync="adminDate"
+                      transition="scale-transition"
+                      offset-y
+                    >
+                      <template #activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="adminDate"
+                          label="Date for entry (OPCIONAL)"
+                          prepend-icon="mdi-calendar"
+                          readonly
+                          required
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-if="menu4"
+                        v-model="adminDate"
+                        :landscape="true"
+                        :reactive="true"
+                      >
+                        <v-spacer />
+                        <v-btn text color="success" @click="menu4 = false"> Cancel </v-btn>
+                        <v-btn
+                          text
+                          color="secondary"
+                          @click="$refs.menu4.save(adminDate)"
+                        >
+                          OK
+                        </v-btn>
+                      </v-date-picker>
+                    </v-menu>
+                  </v-row>
+                  <v-row v-if="getPermission === 1">
+                    <v-autocomplete
+                      v-model="active_user"
+                      label="User"
+                      :items="users"
+                      item-text="name"
+                      item-value="id"
+                      :rules="[(v) => !!v || 'User is required']"
+                      required
+                      filled
+                    ></v-autocomplete>
+                  </v-row>
                 </v-container>
               </v-card-text>
               <v-card-actions>
@@ -150,6 +225,12 @@
     <template #[`item.time`]="{ item }">
       {{ Math.floor(parseInt(item.time) / 60) }}h{{ parseInt(item.time % 60) || '' }}
     </template>
+    <template #[`item.exit_number`]="{ item }">
+      {{ item.exit_number != null ? item.exit_number : '-' }}
+    </template>
+    <template #[`item.sold_amount`]="{ item }">
+      {{ item.sold_amount > 0 ? item.sold_amount : '-' }}
+    </template>
     <template #[`item.actions`]="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
       <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
@@ -158,7 +239,9 @@
 </template>
 
 <script>
-import { createHours, deleteHours, updateHours } from '@/api/hours.api';
+import { createHours, deleteHours, updateHours, getLastEntry } from '@/api/hours.api';
+import { getUsers } from '@/api/user.api';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'HourTable',
@@ -172,6 +255,10 @@ export default {
             entry: String,
             exit: String,
             time: Number,
+            entry_number: Number,
+            exit_number: Number,
+            safe_amount: Number,
+            sold_amount: Number,
           },
         ];
       },
@@ -181,10 +268,17 @@ export default {
     dialog: false,
     dialogDelete: false,
     hours: [],
+    users: [],
+    active_user: '',
     headers: [
+      { text: 'Monitor', value: 'user', sortable: false},
       { text: 'Entry Hour', value: 'entry', sortable: false },
       { text: 'Exit Hour', value: 'exit', sortable: false },
       { text: 'Total Time', value: 'time', sortable: false },
+      { text: 'Entry Ticket', value: 'entry_number', sortable: false },
+      { text: 'Exit Ticket', value: 'exit_number', sortable: false },
+      { text: 'Tickets Sold', value: 'sold_amount', sortable: false },
+      { text: 'Money in Safe', value: 'safe_amount', sortable: false },
       { text: 'Actions', value: 'actions', sortable: false },
     ],
     menu: false,
@@ -193,31 +287,51 @@ export default {
     editedItem: {
       entry: '',
       exit: '',
+      entry_number: 0,
+      exit_number: null,
+      safe_amount: 0,
+      sold_amount: 0,
     },
     defaultItem: {
       entry: '',
       exit: '',
+      entry_number: 0,
+      exit_number: null,
+      safe_amount: 0,
+      sold_amount: 0,
     },
     day: '',
+    adminDate: null,
+    menu4: null
   }),
-
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? 'New Hour Entry' : 'Edit Hour Entry';
     },
+    ...mapGetters('user', ['getPermission']),
   },
 
   watch: {
-    dialog(val) {
+    async dialog(val) {
       val || this.close();
+      const lastEntry = (await getLastEntry()).data;
+      this.editedItem.entry_number = this.editedItem.entry_number
+        ? this.editedItem.entry_number
+        : lastEntry.exit_number;
+      this.editedItem.safe_amount = this.editedItem.safe_amount
+        ? this.editedItem.safe_amount
+        : lastEntry.safe_amount;
     },
     dialogDelete(val) {
       val || this.closeDelete();
     },
   },
 
-  mounted() {
+  async mounted() {
     this.hours = this.propHours;
+    this.users = (await getUsers()).data;
+    this.active_user = this.users.find((val) => val.current);
+
   },
   methods: {
     editItem(item) {
@@ -228,13 +342,20 @@ export default {
         entry: new Date(item.entry).toLocaleTimeString(undefined, {
           timeStyle: 'short',
           timeZone: 'UTC',
+          hourCycle: 'h23',
         }),
         exit: new Date(item.exit).toLocaleTimeString(undefined, {
           timeStyle: 'short',
           timeZone: 'UTC',
+          hourCycle: 'h23',
         }),
+        entry_number: item.entry_number,
+        exit_number: item.exit_number,
+        safe_amount: item.safe_amount,
+        sold_amount: item.sold_amount,
       };
       this.day = item.entry.slice(0, 11);
+      this.active_user = this.users.find(user => user.id == item.userId);
       this.dialog = true;
     },
 
@@ -279,11 +400,29 @@ export default {
     async save() {
       // Don't save if validation is unsuccessful
       if (!this.$refs.form.validate()) return;
+      console.log(this.adminDate);
+
       try {
         if (this.editedIndex > -1) {
+          if(this.adminDate) {
+            this.day = `${this.adminDate}T`
+          }
+
           this.editedItem.entry = this.day + this.editedItem.entry + ':000Z';
           this.editedItem.exit = this.day + this.editedItem.exit + ':000Z';
+          if (!this.editedItem.exit_number) {
+            this.editedItem.exit_number = null;
+          }
+
+          this.editedItem.userId = this.active_user.id ?? this.active_user;
+
           const response = await updateHours(this.hours[this.editedIndex].id, this.editedItem);
+
+          response.data.sold_amount = (response.data.exit_number ?? 0) - response.data.entry_number;
+          console.log(response.data)
+          console.log(this.users)
+          response.data.user = this.users.find(user => user.id == response.data.userId).name;
+
           this.hours.splice(this.editedIndex, 1, response.data);
           this.$notify({
             type: 'success',
@@ -292,9 +431,19 @@ export default {
           });
         } else {
           const now = new Date().toJSON();
-          this.editedItem.entry = now.slice(0, 11) + this.editedItem.entry + ':000Z';
-          this.editedItem.exit = now.slice(0, 11) + this.editedItem.exit + ':000Z';
+
+          this.editedItem.entry = (this.adminDate ? `${this.adminDate}T` : now.slice(0, 11)) + this.editedItem.entry + ':000Z';
+          this.editedItem.exit = (this.adminDate ? `${this.adminDate}T` : now.slice(0, 11)) + this.editedItem.exit + ':000Z';
+          if (!this.editedItem.exit_number) {
+            this.editedItem.exit_number = null;
+          }
+
+
           const response = await createHours(this.editedItem);
+
+          response.data.sold_amount = response.data.exit_number - response.data.entry_number;
+          response.data.user = this.users.find(user => user.id == response.data.userId).name;
+
           this.hours.push(response.data);
           this.$notify({
             type: 'success',

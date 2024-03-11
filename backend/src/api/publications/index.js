@@ -24,10 +24,10 @@ module.exports = {
     }
   },
   getPublications: async (req, res) => {
-    if (!req.user) {
-      res.sendStatus(401);
-      return;
-    }
+    //if (!req.user) {
+    //  res.sendStatus(401);
+    //  return;
+    //}
 
     const data = await controller.getPublications(req.db, req.query.active);
     if (data.length === 0) {

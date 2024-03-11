@@ -15,4 +15,12 @@ module.exports = {
 
     return { user, jwt };
   },
+  getFenixData: async (code) => {
+    const accessToken = await services.loginFenixData(code);
+    if (!accessToken) return {};
+
+    const fenixData = await services.returnIstData(accessToken);
+
+    return fenixData;
+  },
 };
